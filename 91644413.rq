@@ -58,7 +58,8 @@ SELECT ?line WITH {
     BIND(IF(STRSTARTS(?row1, 'HD '), CONCAT('HD', SUBSTR(REPLACE(?row1, 'HD ', '000000000'), STRLEN(?row1))), ?row1) AS ?row2)
     BIND(IF(STRSTARTS(?row2, 'HAT-P-'), CONCAT('HATP', SUBSTR(REPLACE(?row2, 'HAT-P-', '000000000'), STRLEN(?row2))), ?row2) AS ?row3)
     BIND(IF(STRSTARTS(?row3, 'WASP-'), CONCAT('WASP', SUBSTR(REPLACE(?row3, 'WASP-', '000000000'), STRLEN(?row3))), ?row3) AS ?row4)
-    BIND(CONCAT('DD', ?row4) AS ?row)  } }
+    BIND(IF(STRSTARTS(?row4, 'K2-'), CONCAT('K2', SUBSTR(REPLACE(?row4, 'K2-', '000000000'), STRLEN(?row4))), ?row4) AS ?row5)
+    BIND(CONCAT('DD', ?row5) AS ?row)  } }
 } AS %Q {
   {
     VALUES (?row ?line) { 
