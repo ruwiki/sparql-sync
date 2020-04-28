@@ -105,7 +105,6 @@ SELECT ?line WITH {
   } UNION {
     { SELECT DISTINCT ?ru ?item ?itemLabel {
       wd:{0} wdt:P1423 ?constellation.
-      ?constellation wdt:P1813 ?short.
       ?item wdt:P59 ?constellation.
       VALUES ?types { wd:Q595871 wd:Q523 wd:Q101600 }
       FILTER EXISTS { ?item wdt:P31/wdt:P279* ?types }
@@ -113,6 +112,7 @@ SELECT ?line WITH {
       MINUS { INCLUDE %Q } # only those that was not listed above
       FILTER NOT EXISTS { ?item wdt:P31/wdt:P279* wd:Q3937 }
       FILTER NOT EXISTS { ?item wdt:P3208 [] } # exclude NGC articles (low quality)
+      FILTER NOT EXISTS { [] p:P398[ps:P398 ?item; pq:P1545 []] }
       SERVICE wikibase:label { bd:serviceParam wikibase:language "ru,en" }
     } }
     BIND(CONCAT('* [[', ?ru, ']]') AS ?line)    
