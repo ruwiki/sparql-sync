@@ -1,65 +1,54 @@
 SELECT ?line WITH { 
-  SELECT DISTINCT ?constellation ?item ?line ?row {
+SELECT ?item (?itemLabel AS ?label) ?row {
   {
-    { SELECT * {
-        wd:{0} wdt:P1423 ?constellation.
-        ?constellation wdt:P1813 ?short.
-        ?item wdt:P59 ?constellation; p:P528[ps:P528 ?b; pq:P972 wd:Q105616; wikibase:rank wikibase:NormalRank]
-        VALUES ?types { wd:Q595871 wd:Q523 wd:Q101600 }
-        FILTER EXISTS { ?item wdt:P31/wdt:P279* ?types }
-        FILTER NOT EXISTS { [] p:P527[ps:P527 ?item; pq:P1545 []] }
-    } }
-    OPTIONAL { [] schema:about ?item; schema:isPartOf <https://ru.wikipedia.org/>; schema:name ?ru }
-    BIND (REPLACE(?b, CONCAT(' ', STR(?short)), '') AS ?bayer)
-    BIND (IF(BOUND(?ru), CONCAT('* [[', ?ru, '|', ?bayer, ']]'), CONCAT('* {{нет статьи|', REPLACE(STR(?item), 'http://www.wikidata.org/entity/', ''), '|',?bayer, '|Звезда}}')) AS ?line)
-    BIND (CONCAT('A', REPLACE(IF(REGEX(?bayer, '^[A-Za-z]'), CONCAT('ωω',?bayer), IF(REGEX(?bayer, '\\s[A-Za-z][A-Za-z][A-Za-z]'), CONCAT('ωωω',?bayer), ?bayer)),'¹','1')) AS ?row)
+    wd:{0} wdt:P1423 ?constellation.
+    ?item wdt:P59 ?constellation; p:P528[pq:P972 wd:Q105616; wikibase:rank wikibase:NormalRank; ps:P528 ?code].
+    MINUS { ?item wdt:P31 wd:Q43001876 }
+    MINUS { ?item wdt:P31 wd:Q11276; wdt:P59 ?constellation }
+    ?constellation wdt:P1813 ?short
+    BIND (REPLACE(?code, CONCAT(' ', STR(?short)), '') AS ?itemLabel)
+    BIND (CONCAT('A', REPLACE(IF(REGEX(?itemLabel, '^[A-Za-z]'), CONCAT('ωω',?itemLabel), 
+                                 IF(REGEX(?itemLabel, '\\s[A-Za-z][A-Za-z][A-Za-z]'), CONCAT('ωωω',?itemLabel), ?itemLabel)),'¹','1')) AS ?row)
   } UNION {
     wd:{0} wdt:P1423 ?constellation.
-    ?constellation wdt:P1813 ?short.
-    ?item wdt:P59 ?constellation; p:P528[ps:P528 ?f; pq:P972 wd:Q111116; wikibase:rank wikibase:NormalRank]
-    VALUES ?types { wd:Q595871 wd:Q523 wd:Q101600 }
-    FILTER EXISTS { ?item wdt:P31/wdt:P279* ?types }
-    OPTIONAL { [] schema:about ?item; schema:isPartOf <https://ru.wikipedia.org/>; schema:name ?ru }
-    BIND(REPLACE(?f, CONCAT(' ', STR(?short)), '') AS ?flam)
-    BIND(IF(BOUND(?ru), CONCAT('* [[', ?ru, '|', ?flam, ']]'), CONCAT('* {{нет статьи|', REPLACE(STR(?item), 'http://www.wikidata.org/entity/', ''), '|', ?flam, '|Звезда}}')) AS ?line)            
-    BIND(xsd:integer(?flam) as ?num)
-    BIND(CONCAT('BB', IF(BOUND(?num), SUBSTR(CONCAT('00', ?flam), STRLEN(?flam)), CONCAT('B', SUBSTR(CONCAT('00', ?flam), STRLEN(?flam)-4)))) AS ?row)
+    ?item wdt:P59 ?constellation; p:P528[pq:P972 wd:Q111116; wikibase:rank wikibase:NormalRank; ps:P528 ?code].
+    FILTER (?item NOT IN (wd:Q2469))
+    ?constellation wdt:P1813 ?short
+    BIND(REPLACE(?code, CONCAT(' ', STR(?short)), '') AS ?itemLabel)
+    BIND(CONCAT('BB', IF(!CONTAINS(?itemLabel, ' '), SUBSTR(CONCAT('00', ?itemLabel), STRLEN(?itemLabel)), 
+                         CONCAT('B', SUBSTR(CONCAT('00', ?itemLabel), STRLEN(STRBEFORE(?itemLabel, ' ')))))) AS ?row)
   } UNION {
     wd:{0} wdt:P1423 ?constellation.
-    ?constellation wdt:P1813 ?short.
-    ?item wdt:P59 ?constellation; wikibase:sitelinks ?iw; p:P528[ps:P528 ?v; pq:P972 wd:Q222662; wikibase:rank wikibase:NormalRank]
-    VALUES ?types { wd:Q595871 wd:Q523 wd:Q101600 }
-    FILTER EXISTS { ?item wdt:P31/wdt:P279* ?types }
-    OPTIONAL { [] schema:about ?item; schema:isPartOf <https://ru.wikipedia.org/>; schema:name ?ru }
-    BIND(REPLACE(?v, CONCAT(' ', STR(?short)), '') AS ?var)
-    FILTER(REGEX(?var, '[A-Z].*') && (?iw > 0))
-    FILTER NOT EXISTS { ?item wdt:P31/wdt:P279* wd:Q3937 }
-    BIND(IF(BOUND(?ru), CONCAT('* [[', ?ru, '|', ?var, ']]'), CONCAT('* {{нет статьи|', REPLACE(STR(?item), 'http://www.wikidata.org/entity/', ''), '|', ?var, '|Звезда}}')) AS ?line)            
-    BIND(CONCAT(IF(REGEX(?var, '^[R-Z]+$'), 'CC', 'CD'), STR(STRLEN(?var)), ?var) AS ?row)
+    ?item wdt:P59 ?constellation; p:P528[pq:P972 wd:Q222662; wikibase:rank wikibase:NormalRank; ps:P528 ?code]; wikibase:sitelinks ?iw
+    FILTER (?item NOT IN (wd:Q43933, wd:Q841138))
+    FILTER NOT EXISTS { ?item wdt:P31 wd:Q3937 }
+    ?constellation wdt:P1813 ?short
+    BIND(REPLACE(?code, CONCAT(' ', STR(?short)), '') AS ?itemLabel)
+    FILTER(REGEX(?itemLabel, '[A-Z].*') && (?iw > 0))
+    BIND(CONCAT(IF(REGEX(?itemLabel, '^[R-Z]+$'), 'CC', 'CD'), STR(STRLEN(?itemLabel)), ?itemLabel) AS ?row)
   } UNION {
-    { 
-      SELECT DISTINCT ?constellation ?item ?itemLabel {
-      {
-        wd:{0} wdt:P1423 ?constellation.
-        ?item wdt:P59 ?constellation; wdt:P398 [] # fictional planets should be deprecated
-      } UNION {
-        wd:{0} wdt:P1423 ?constellation.
-        ?item wdt:P59 ?constellation; wdt:P527/wdt:P398 [] # in multiple systems exoplanet are associated with concrete star
-      }
-      VALUES ?types { wd:Q595871 wd:Q523 wd:Q101600 }
-      FILTER EXISTS { ?item wdt:P31/wdt:P279* ?types }
-      FILTER NOT EXISTS { [] p:P527[ps:P527 ?item; pq:P1545 []] }
-      SERVICE wikibase:label { bd:serviceParam wikibase:language "ru,en" }
-    } }
-    OPTIONAL { [] schema:about ?item; schema:isPartOf <https://ru.wikipedia.org/>; schema:name ?ru }
-    BIND(IF(BOUND(?ru), CONCAT('* [[', ?ru, ']]'), CONCAT('* {{нет статьи|', REPLACE(STR(?item), 'http://www.wikidata.org/entity/', ''), '|', 
-                                                          CONCAT(UCASE(SUBSTR(?itemLabel, 1, 1)), SUBSTR(?itemLabel, 2)), '|Звезда}}')) AS ?line)    
-    BIND(IF(BOUND(?ru), ?ru, ?itemLabel) AS ?row1)
-    BIND(IF(STRSTARTS(?row1, 'HD '), CONCAT('HD', SUBSTR(REPLACE(?row1, 'HD ', '000000000'), STRLEN(?row1))), ?row1) AS ?row2)
-    BIND(IF(STRSTARTS(?row2, 'HAT-P-'), CONCAT('HATP', SUBSTR(REPLACE(?row2, 'HAT-P-', '000000000'), STRLEN(?row2))), ?row2) AS ?row3)
-    BIND(IF(STRSTARTS(?row3, 'WASP-'), CONCAT('WASP', SUBSTR(REPLACE(?row3, 'WASP-', '000000000'), STRLEN(?row3))), ?row3) AS ?row4)
-    BIND(IF(STRSTARTS(?row4, 'K2-'), CONCAT('K2', SUBSTR(REPLACE(?row4, 'K2-', '000000000'), STRLEN(?row4))), ?row4) AS ?row5)
-    BIND(CONCAT('DD', ?row5) AS ?row)  } }
+    SELECT DISTINCT ?item ?itemLabel {
+      wd:{0} wdt:P1423 ?constellation.
+      ?item wdt:P59 ?constellation; p:P398/pq:P1545 []
+      SERVICE wikibase:label { bd:serviceParam wikibase:language "ru,en". }
+    }
+  } UNION {
+    SELECT DISTINCT ?item ?itemLabel {
+      wd:{0} wdt:P1423 ?constellation.
+      ?item wdt:P59 ?constellation; p:P527[ps:P527/p:P398/pq:P1545 []; pq:P1545 []]
+      SERVICE wikibase:label { bd:serviceParam wikibase:language "ru,en". }
+    }
+  }  
+  FILTER NOT EXISTS { [] p:P527[ps:P527 ?item; pq:P1545 []] }
+  BIND(IF(BOUND(?row), ?row, CONCAT('DD', IF(STRSTARTS(?itemLabel, 'COROT-'), CONCAT('COROT', SUBSTR(REPLACE(?itemLabel, 'COROT-', '00000000'), STRLEN(?itemLabel))), 
+                                          IF(STRSTARTS(?itemLabel, 'HAT-P-'), CONCAT('HATP', SUBSTR(REPLACE(?itemLabel, 'HAT-P-', '00000000'), STRLEN(?itemLabel))), 
+                                          IF(STRSTARTS(?itemLabel, 'HD '), CONCAT('HD', SUBSTR(REPLACE(?itemLabel, 'HD ', '00000000'), STRLEN(?itemLabel))), 
+                                          IF(STRSTARTS(?itemLabel, 'K2-'), CONCAT('K2', SUBSTR(REPLACE(?itemLabel, 'K2-', '000000'), STRLEN(?itemLabel))), 
+                                          IF(STRSTARTS(?itemLabel, 'Kepler-'), CONCAT('KE', SUBSTR(REPLACE(?itemLabel, 'Kepler-', '00000000000'), STRLEN(?itemLabel))), 
+                                          IF(STRSTARTS(?itemLabel, 'KOI-'), CONCAT('KOI', SUBSTR(REPLACE(?itemLabel, 'KOI-', '00000000'), STRLEN(?itemLabel))), 
+                                          IF(STRSTARTS(?itemLabel, 'WASP-'), CONCAT('WASP', SUBSTR(REPLACE(?itemLabel, 'WASP-', '00000000'), STRLEN(?itemLabel))), 
+                                             UCASE(?itemLabel)))))))))) AS ?row)
+}
 } AS %Q {
   {
     VALUES (?row ?line) { 
@@ -90,7 +79,7 @@ SELECT ?line WITH {
       ('F1' '') 
       ('F3' ' }}<noinclude>')
       ('F4' '[[Категория:Навигационные шаблоны:Звёзды по созвездиям]]') 
-      ('F5' '[[Категория:Википедия:Навигационные шаблоны по звёздам созвездий формируемые из Викиданных]]')
+      ('F5' '[[Категория:Википедия:Автоматически формируемые шаблоны по звёздам созвездий]]')
       ('F6' '</noinclude>')
     }  
   } UNION {
@@ -102,22 +91,25 @@ SELECT ?line WITH {
     BIND(CONCAT(' |заголовок     = Звёзды созвездия [[', ?ruconst, '|', REPLACE (?rulist, 'Список звёзд созвездия ', ''), ']]') AS ?line)
   } UNION {
     INCLUDE %Q
+    OPTIONAL { [] schema:about ?item; schema:isPartOf <https://ru.wikipedia.org/>; schema:name ?ru }
+    BIND(IF(BOUND(?ru), CONCAT('* [[', ?ru, IF(LCASE(?label) != LCASE(?ru), CONCAT('|', ?label), ''), ']]'), 
+                        CONCAT('* {{нет статьи|', REPLACE(STR(?item), 'http://www.wikidata.org/entity/', ''), '|', ?label, '|Звезда}}')) AS ?line)
   } UNION {
-    { SELECT DISTINCT ?ru ?item ?itemLabel {
-      wd:{0} wdt:P1423 ?constellation.
-      ?item wdt:P59 ?constellation.
-      VALUES ?types { wd:Q595871 wd:Q523 wd:Q101600 }
-      FILTER EXISTS { ?item wdt:P31/wdt:P279* ?types }
-      [] schema:about ?item; schema:isPartOf <https://ru.wikipedia.org/>; schema:name ?ru
-      MINUS { INCLUDE %Q } # only those that was not listed above
-      FILTER NOT EXISTS { ?item wdt:P31/wdt:P279* wd:Q3937 }
-      FILTER NOT EXISTS { ?item wdt:P3208 [] } # exclude NGC articles (low quality)
-      FILTER NOT EXISTS { [] p:P398[ps:P398 ?item; pq:P1545 []] }
-      SERVICE wikibase:label { bd:serviceParam wikibase:language "ru,en" }
+    { SELECT DISTINCT ?item ?ru {
+        wd:{0} wdt:P1423 ?constellation.
+        ?item wdt:P59 ?constellation.
+        [] schema:about ?item; schema:isPartOf <https://ru.wikipedia.org/>; schema:name ?ru
+        MINUS { INCLUDE %Q } # only those that were not listed above
+        VALUES ?types { wd:Q595871 wd:Q523 wd:Q101600 }
+        FILTER EXISTS { ?item wdt:P31/wdt:P279* ?types }
+        MINUS { ?item wdt:P3208 []; wdt:P59 ?constellation }
+        MINUS { ?item wdt:P31 wd:Q44559; wdt:P59 ?constellation }
+        MINUS { ?item wdt:P31 wd:Q3937; wdt:P59 ?constellation }
+        MINUS { ?item wdt:P31 wd:Q1049029; wdt:P59 ?constellation }
+        MINUS { ?item wdt:P31 wd:Q4188; wdt:P59 ?constellation }
     } }
     BIND(CONCAT('* [[', ?ru, ']]') AS ?line)    
-    BIND(IF(STRSTARTS(?ru, 'HD '), CONCAT('HD', SUBSTR(REPLACE(?ru, 'HD ', '000000000'), STRLEN(?ru))), ?ru) AS ?row1)
-    BIND(CONCAT('EE', ?row1) AS ?row)
+    BIND(CONCAT('EE', IF(STRSTARTS(?ru, 'HD '), CONCAT('HD', SUBSTR(REPLACE(?ru, 'HD ', '000000000'), STRLEN(?ru))), ?ru)) AS ?row)
   } UNION {
     wd:{0} wdt:P1423 ?constellation.
     BIND ('F2' as ?row)
