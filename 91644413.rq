@@ -20,7 +20,7 @@ SELECT ?item (?itemLabel AS ?label) ?row {
   } UNION {
     wd:{0} wdt:P1423 ?constellation.
     ?item wdt:P59 ?constellation; p:P528[pq:P972 wd:Q222662; wikibase:rank wikibase:NormalRank; ps:P528 ?code]; wikibase:sitelinks ?iw
-    FILTER (?item NOT IN (wd:Q43933, wd:Q841138))
+    FILTER (?item NOT IN (wd:Q43933, wd:Q841138, wd:Q872204))
     FILTER NOT EXISTS { ?item wdt:P31 wd:Q3937 }
     ?constellation wdt:P1813 ?short
     BIND(REPLACE(?code, CONCAT(' ', STR(?short)), '') AS ?itemLabel)
@@ -46,8 +46,9 @@ SELECT ?item (?itemLabel AS ?label) ?row {
                                           IF(STRSTARTS(?itemLabel, 'K2-'), CONCAT('K2', SUBSTR(REPLACE(?itemLabel, 'K2-', '000000'), STRLEN(?itemLabel))), 
                                           IF(STRSTARTS(?itemLabel, 'Kepler-'), CONCAT('KE', SUBSTR(REPLACE(?itemLabel, 'Kepler-', '00000000000'), STRLEN(?itemLabel))), 
                                           IF(STRSTARTS(?itemLabel, 'KOI-'), CONCAT('KOI', SUBSTR(REPLACE(?itemLabel, 'KOI-', '00000000'), STRLEN(?itemLabel))), 
+                                          IF(STRSTARTS(?itemLabel, 'TOI-'), CONCAT('TOI', SUBSTR(REPLACE(?itemLabel, 'TOI-', '00000000'), STRLEN(?itemLabel))), 
                                           IF(STRSTARTS(?itemLabel, 'WASP-'), CONCAT('WASP', SUBSTR(REPLACE(?itemLabel, 'WASP-', '00000000'), STRLEN(?itemLabel))), 
-                                             UCASE(?itemLabel)))))))))) AS ?row)
+                                             UCASE(?itemLabel))))))))))) AS ?row)
 }
 } AS %Q {
   {
