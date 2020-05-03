@@ -20,7 +20,7 @@ SELECT ?item (?itemLabel AS ?label) ?row {
   } UNION {
     wd:{0} wdt:P1423 ?constellation.
     ?item wdt:P59 ?constellation; p:P528[pq:P972 wd:Q222662; wikibase:rank wikibase:NormalRank; ps:P528 ?code]; wikibase:sitelinks ?iw
-    FILTER (?item NOT IN (wd:Q43933, wd:Q841138, wd:Q872204))
+    FILTER (?item NOT IN (wd:Q43933, wd:Q841138, wd:Q872204, wd:Q913140))
     FILTER NOT EXISTS { ?item wdt:P31 wd:Q3937 }
     ?constellation wdt:P1813 ?short
     BIND(REPLACE(?code, CONCAT(' ', STR(?short)), '') AS ?itemLabel)
