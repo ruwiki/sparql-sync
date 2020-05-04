@@ -20,12 +20,12 @@ SELECT ?line WITH {
     } UNION {
       wd:{0} wdt:P1423 ?constellation.
       ?item wdt:P59 ?constellation; p:P528[pq:P972 wd:Q222662; wikibase:rank wikibase:NormalRank; ps:P528 ?code]; wikibase:sitelinks ?iw
-      FILTER (?item NOT IN (wd:Q43933, wd:Q841138, wd:Q872204, wd:Q913140))
+      FILTER (?item NOT IN (wd:Q43933, wd:Q841138, wd:Q872204, wd:Q913140, wd:Q1049146, wd:Q554280))
       FILTER NOT EXISTS { ?item wdt:P31 wd:Q3937 }
       ?constellation wdt:P1813 ?short
       BIND(REPLACE(?code, CONCAT(' ', STR(?short)), '') AS ?itemLabel)
       FILTER(REGEX(?itemLabel, '[A-Z].*') && (?iw > 0))
-      BIND(REPLACE(CONCAT(IF(REGEX(?itemLabel, '^[R-Z]+$'), 'CC', 'CD'), STR(STRLEN(?itemLabel)), ?itemLabel), ' ', '֍') AS ?sortkey)
+      BIND(REPLACE(CONCAT(IF(REGEX(?itemLabel, '^[R-Z]+$'), 'CC', 'CD'), STR(STRLEN(?itemLabel)), ?itemLabel), '5[R-Z]\\s', '֍') AS ?sortkey)
     } UNION {
       SELECT DISTINCT ?item ?itemLabel {
         wd:{0} wdt:P1423 ?constellation.
@@ -112,6 +112,7 @@ SELECT ?line WITH {
         MINUS { ?item wdt:P31 wd:Q1049029; wdt:P59 ?constellation }
         MINUS { ?item wdt:P31 wd:Q582000; wdt:P59 ?constellation }
         MINUS { ?item wdt:P31 wd:Q4188; wdt:P59 ?constellation }
+        MINUS { ?item wdt:P31 wd:Q2035809; wdt:P59 ?constellation }
     } }
     BIND(CONCAT('* [[', ?ru, ']]') AS ?line)    
     BIND(CONCAT('EE', IF(STRSTARTS(?ru, 'HD '), CONCAT('HD', SUBSTR(REPLACE(?ru, 'HD ', '000000000'), STRLEN(?ru))), ?ru)) AS ?sortkey)
