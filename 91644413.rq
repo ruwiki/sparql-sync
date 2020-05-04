@@ -25,7 +25,7 @@ SELECT ?line WITH {
       ?constellation wdt:P1813 ?short
       BIND(REPLACE(?code, CONCAT(' ', STR(?short)), '') AS ?itemLabel)
       FILTER(REGEX(?itemLabel, '[A-Z].*') && (?iw > 0))
-      BIND(REPLACE(CONCAT(IF(REGEX(?itemLabel, '^[R-Z]+$'), 'CC', 'CD'), STR(STRLEN(?itemLabel)), ?itemLabel), '5[R-Z]\\s', '֍') AS ?sortkey)
+      BIND(REPLACE(CONCAT(IF(REGEX(?itemLabel, '^[R-Z]+$'), 'CC', 'CD'), STR(STRLEN(?itemLabel)), ?itemLabel), '[R-Z]?\\s', '֍') AS ?sortkey)
     } UNION {
       SELECT DISTINCT ?item ?itemLabel {
         wd:{0} wdt:P1423 ?constellation.
