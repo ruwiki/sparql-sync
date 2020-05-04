@@ -1,58 +1,60 @@
-SELECT ?line WITH { 
-SELECT ?item (?itemLabel AS ?label) ?row {
-  {
-    wd:{0} wdt:P1423 ?constellation.
-    ?item wdt:P59 ?constellation; p:P528[pq:P972 wd:Q105616; wikibase:rank wikibase:NormalRank; ps:P528 ?code].
-    MINUS { ?item wdt:P31 wd:Q43001876 }
-    MINUS { ?item wdt:P31 wd:Q11276; wdt:P59 ?constellation }
-    ?constellation wdt:P1813 ?short
-    BIND (REPLACE(?code, CONCAT(' ', STR(?short)), '') AS ?itemLabel)
-    BIND (CONCAT('A', REPLACE(IF(REGEX(?itemLabel, '^[A-Za-z]'), CONCAT('ωω',?itemLabel), 
-                                 IF(REGEX(?itemLabel, '\\s[A-Za-z][A-Za-z][A-Za-z]'), CONCAT('ωωω',?itemLabel), ?itemLabel)),'¹','1')) AS ?row)
-  } UNION {
-    wd:{0} wdt:P1423 ?constellation.
-    ?item wdt:P59 ?constellation; p:P528[pq:P972 wd:Q111116; wikibase:rank wikibase:NormalRank; ps:P528 ?code].
-    FILTER (?item NOT IN (wd:Q2469))
-    ?constellation wdt:P1813 ?short
-    BIND(REPLACE(?code, CONCAT(' ', STR(?short)), '') AS ?itemLabel)
-    BIND(CONCAT('BB', IF(!CONTAINS(?itemLabel, ' '), SUBSTR(CONCAT('00', ?itemLabel), STRLEN(?itemLabel)), 
-                         CONCAT('B', SUBSTR(CONCAT('00', ?itemLabel), STRLEN(STRBEFORE(?itemLabel, ' ')))))) AS ?row)
-  } UNION {
-    wd:{0} wdt:P1423 ?constellation.
-    ?item wdt:P59 ?constellation; p:P528[pq:P972 wd:Q222662; wikibase:rank wikibase:NormalRank; ps:P528 ?code]; wikibase:sitelinks ?iw
-    FILTER (?item NOT IN (wd:Q43933, wd:Q841138, wd:Q872204, wd:Q913140))
-    FILTER NOT EXISTS { ?item wdt:P31 wd:Q3937 }
-    ?constellation wdt:P1813 ?short
-    BIND(REPLACE(?code, CONCAT(' ', STR(?short)), '') AS ?itemLabel)
-    FILTER(REGEX(?itemLabel, '[A-Z].*') && (?iw > 0))
-    BIND(CONCAT(IF(REGEX(?itemLabel, '^[R-Z]+$'), 'CC', 'CD'), STR(STRLEN(?itemLabel)), ?itemLabel) AS ?row)
-  } UNION {
-    SELECT DISTINCT ?item ?itemLabel {
+SELECT * WITH {
+  SELECT ?item (?itemLabel AS ?label) ?sortkey {
+    {
       wd:{0} wdt:P1423 ?constellation.
-      ?item wdt:P59 ?constellation; p:P398/pq:P1545 []
-      SERVICE wikibase:label { bd:serviceParam wikibase:language "ru,en". }
-    }
-  } UNION {
-    SELECT DISTINCT ?item ?itemLabel {
+      ?item wdt:P59 ?constellation; p:P528[pq:P972 wd:Q105616; wikibase:rank wikibase:NormalRank; ps:P528 ?code].
+      MINUS { ?item wdt:P31 wd:Q43001876 }
+      MINUS { ?item wdt:P31 wd:Q11276; wdt:P59 ?constellation }
+      ?constellation wdt:P1813 ?short
+      BIND (REPLACE(?code, CONCAT(' ', STR(?short)), '') AS ?itemLabel)
+      BIND (CONCAT('A', REPLACE(IF(REGEX(?itemLabel, '^[A-Za-z]'), CONCAT('ωω',?itemLabel), 
+                                   IF(REGEX(?itemLabel, '\\s[A-Za-z][A-Za-z][A-Za-z]'), CONCAT('ω֍',?itemLabel), ?itemLabel)),'¹','1')) AS ?sortkey)
+    } UNION {
       wd:{0} wdt:P1423 ?constellation.
-      ?item wdt:P59 ?constellation; p:P527[ps:P527/p:P398/pq:P1545 []; pq:P1545 []]
-      SERVICE wikibase:label { bd:serviceParam wikibase:language "ru,en". }
-    }
-  }  
-  FILTER NOT EXISTS { [] p:P527[ps:P527 ?item; pq:P1545 []] }
-  BIND(IF(BOUND(?row), ?row, CONCAT('DD', IF(STRSTARTS(?itemLabel, 'COROT-'), CONCAT('COROT', SUBSTR(REPLACE(?itemLabel, 'COROT-', '00000000'), STRLEN(?itemLabel))), 
-                                          IF(STRSTARTS(?itemLabel, 'HAT-P-'), CONCAT('HATP', SUBSTR(REPLACE(?itemLabel, 'HAT-P-', '00000000'), STRLEN(?itemLabel))), 
-                                          IF(STRSTARTS(?itemLabel, 'HD '), CONCAT('HD', SUBSTR(REPLACE(?itemLabel, 'HD ', '00000000'), STRLEN(?itemLabel))), 
-                                          IF(STRSTARTS(?itemLabel, 'K2-'), CONCAT('K2', SUBSTR(REPLACE(?itemLabel, 'K2-', '000000'), STRLEN(?itemLabel))), 
-                                          IF(STRSTARTS(?itemLabel, 'Kepler-'), CONCAT('KE', SUBSTR(REPLACE(?itemLabel, 'Kepler-', '00000000000'), STRLEN(?itemLabel))), 
-                                          IF(STRSTARTS(?itemLabel, 'KOI-'), CONCAT('KOI', SUBSTR(REPLACE(?itemLabel, 'KOI-', '00000000'), STRLEN(?itemLabel))), 
-                                          IF(STRSTARTS(?itemLabel, 'TOI-'), CONCAT('TOI', SUBSTR(REPLACE(?itemLabel, 'TOI-', '00000000'), STRLEN(?itemLabel))), 
-                                          IF(STRSTARTS(?itemLabel, 'WASP-'), CONCAT('WASP', SUBSTR(REPLACE(?itemLabel, 'WASP-', '00000000'), STRLEN(?itemLabel))), 
-                                             UCASE(?itemLabel))))))))))) AS ?row)
-}
+      ?item wdt:P59 ?constellation; p:P528[pq:P972 wd:Q111116; wikibase:rank wikibase:NormalRank; ps:P528 ?code].
+      FILTER (?item NOT IN (wd:Q2469, wd:Q14031))
+      ?constellation wdt:P1813 ?short
+      BIND(REPLACE(?code, CONCAT(' ', STR(?short)), '') AS ?itemLabel)
+      BIND(CONCAT('BB', IF(!CONTAINS(?itemLabel, ' '), SUBSTR(CONCAT('00', ?itemLabel), STRLEN(?itemLabel)), 
+                           CONCAT('֍', SUBSTR(CONCAT('00', ?itemLabel), STRLEN(STRBEFORE(?itemLabel, ' ')))))) AS ?sortkey)
+    } UNION {
+      wd:{0} wdt:P1423 ?constellation.
+      ?item wdt:P59 ?constellation; p:P528[pq:P972 wd:Q222662; wikibase:rank wikibase:NormalRank; ps:P528 ?code]; wikibase:sitelinks ?iw
+      FILTER (?item NOT IN (wd:Q43933, wd:Q841138, wd:Q872204, wd:Q913140))
+      FILTER NOT EXISTS { ?item wdt:P31 wd:Q3937 }
+      ?constellation wdt:P1813 ?short
+      BIND(REPLACE(?code, CONCAT(' ', STR(?short)), '') AS ?itemLabel)
+      FILTER(REGEX(?itemLabel, '[A-Z].*') && (?iw > 0))
+      BIND(REPLACE(CONCAT(IF(REGEX(?itemLabel, '^[R-Z]+$'), 'CC', 'CD'), STR(STRLEN(?itemLabel)), ?itemLabel), ' ', '֍') AS ?sortkey)
+    } UNION {
+      SELECT DISTINCT ?item ?itemLabel {
+        wd:{0} wdt:P1423 ?constellation.
+        ?item wdt:P59 ?constellation; p:P398/pq:P1545 []
+        SERVICE wikibase:label { bd:serviceParam wikibase:language "ru,en". }
+      }
+    } UNION {
+      SELECT DISTINCT ?item ?itemLabel {
+        wd:{0} wdt:P1423 ?constellation.
+        ?item wdt:P59 ?constellation; p:P527[ps:P527/p:P398/pq:P1545 []; pq:P1545 []]
+        SERVICE wikibase:label { bd:serviceParam wikibase:language "ru,en". }
+      }
+    }  
+    FILTER NOT EXISTS { [] p:P527[ps:P527 ?item; pq:P1545 []] }
+    BIND(IF(BOUND(?sortkey), ?sortkey, CONCAT('DD', IF(STRSTARTS(?itemLabel, 'COROT-'), CONCAT('COROT', SUBSTR(REPLACE(?itemLabel, 'COROT-', '00000000'), STRLEN(?itemLabel))), 
+                                            IF(STRSTARTS(?itemLabel, 'HAT-P-'), CONCAT('HATP', SUBSTR(REPLACE(?itemLabel, 'HAT-P-', '00000000'), STRLEN(?itemLabel))), 
+                                            IF(STRSTARTS(?itemLabel, 'HATS-'), CONCAT('HATS', SUBSTR(REPLACE(?itemLabel, 'HATS-', '00000000'), STRLEN(?itemLabel))), 
+                                            IF(STRSTARTS(?itemLabel, 'HD '), CONCAT('HD', SUBSTR(REPLACE(?itemLabel, 'HD ', '00000000'), STRLEN(?itemLabel))), 
+                                            IF(STRSTARTS(?itemLabel, 'HIP '), CONCAT('HIP', SUBSTR(REPLACE(?itemLabel, 'HIP ', '00000000'), STRLEN(?itemLabel))), 
+                                            IF(STRSTARTS(?itemLabel, 'K2-'), CONCAT('K2', SUBSTR(REPLACE(?itemLabel, 'K2-', '000000'), STRLEN(?itemLabel))), 
+                                            IF(STRSTARTS(?itemLabel, 'Kepler-'), CONCAT('KE', SUBSTR(REPLACE(?itemLabel, 'Kepler-', '00000000000'), STRLEN(?itemLabel))), 
+                                            IF(STRSTARTS(?itemLabel, 'KOI-'), CONCAT('KOI', SUBSTR(REPLACE(?itemLabel, 'KOI-', '00000000'), STRLEN(?itemLabel))), 
+                                            IF(STRSTARTS(?itemLabel, 'TOI-'), CONCAT('TOI', SUBSTR(REPLACE(?itemLabel, 'TOI-', '00000000'), STRLEN(?itemLabel))), 
+                                            IF(STRSTARTS(?itemLabel, 'WASP-'), CONCAT('WASP', SUBSTR(REPLACE(?itemLabel, 'WASP-', '00000000'), STRLEN(?itemLabel))), 
+                                               UCASE(?itemLabel))))))))))))) AS ?sortkey)
+  }
 } AS %Q {
   {
-    VALUES (?row ?line) { 
+    VALUES (?sortkey ?line) { 
       ('A1' '{{Навигационная таблица')
       ('A2' ' |имя           = {{subst:PAGENAME}}')
       ('A3' ' |state         = <includeonly>{{{state|autocollapse}}}</includeonly>')
@@ -84,7 +86,7 @@ SELECT ?item (?itemLabel AS ?label) ?row {
       ('F6' '</noinclude>')
     }  
   } UNION {
-    BIND ('A4' as ?row)
+    BIND ('A4' as ?sortkey)
     wd:{0} wdt:P1423 ?constellation.
     [] schema:about ?constellation; schema:isPartOf <https://ru.wikipedia.org/>; schema:name ?ruconst.
     ?item p:P360[ps:P360 wd:Q523; pq:P59 ?constellation].
@@ -93,8 +95,9 @@ SELECT ?item (?itemLabel AS ?label) ?row {
   } UNION {
     INCLUDE %Q
     OPTIONAL { [] schema:about ?item; schema:isPartOf <https://ru.wikipedia.org/>; schema:name ?ru }
-    BIND(IF(BOUND(?ru), CONCAT('* [[', ?ru, IF(LCASE(?label) != LCASE(?ru), CONCAT('|', ?label), ''), ']]'), 
-                        CONCAT('* {{нет статьи|', REPLACE(STR(?item), 'http://www.wikidata.org/entity/', ''), '|', ?label, '|Звезда}}')) AS ?line)
+    BIND(IF(BOUND(?ru), CONCAT('[[', ?ru, IF(LCASE(?label) != LCASE(?ru), CONCAT('|', ?label), ''), ']]'), 
+                        CONCAT('{{нет статьи|', REPLACE(STR(?item), 'http://www.wikidata.org/entity/', ''), '|', ?label, '|Звезда}}')) AS ?link)
+    BIND(IF(CONTAINS(?sortkey, '֍'), CONCAT("* ''", ?link, "''"), CONCAT('* ', ?link)) AS ?line)
   } UNION {
     { SELECT DISTINCT ?item ?ru {
         wd:{0} wdt:P1423 ?constellation.
@@ -107,15 +110,16 @@ SELECT ?item (?itemLabel AS ?label) ?row {
         MINUS { ?item wdt:P31 wd:Q44559; wdt:P59 ?constellation }
         MINUS { ?item wdt:P31 wd:Q3937; wdt:P59 ?constellation }
         MINUS { ?item wdt:P31 wd:Q1049029; wdt:P59 ?constellation }
+        MINUS { ?item wdt:P31 wd:Q582000; wdt:P59 ?constellation }
         MINUS { ?item wdt:P31 wd:Q4188; wdt:P59 ?constellation }
     } }
     BIND(CONCAT('* [[', ?ru, ']]') AS ?line)    
-    BIND(CONCAT('EE', IF(STRSTARTS(?ru, 'HD '), CONCAT('HD', SUBSTR(REPLACE(?ru, 'HD ', '000000000'), STRLEN(?ru))), ?ru)) AS ?row)
+    BIND(CONCAT('EE', IF(STRSTARTS(?ru, 'HD '), CONCAT('HD', SUBSTR(REPLACE(?ru, 'HD ', '000000000'), STRLEN(?ru))), ?ru)) AS ?sortkey)
   } UNION {
     wd:{0} wdt:P1423 ?constellation.
-    BIND ('F2' as ?row)
+    BIND ('F2' as ?sortkey)
     ?list p:P360[ps:P360 wd:Q523; pq:P59 ?constellation].
     [] schema:about ?list; schema:isPartOf <https://ru.wikipedia.org/>; schema:name ?rulist
     BIND(CONCAT(' | внизу        = [[', ?rulist, ']]') AS ?line)
   }
-} ORDER BY ?row
+} ORDER BY ?sortkey
