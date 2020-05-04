@@ -1,4 +1,4 @@
-SELECT * WITH {
+SELECT ?line WITH {
   SELECT ?item (?itemLabel AS ?label) ?sortkey {
     {
       wd:{0} wdt:P1423 ?constellation.
