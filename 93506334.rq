@@ -33,13 +33,23 @@ SELECT ?line WITH {
       OPTIONAL { ?msini_statement ^p:P2051 ?exo; wikibase:rank wikibase:NormalRank; psv:P2051/wikibase:quantityAmount ?msini_amount }
       OPTIONAL { ?msini_statement ^p:P2051 ?exo; wikibase:rank wikibase:NormalRank; psv:P2051/wikibase:quantityUpperBound ?msini_upper }
       OPTIONAL { ?msini_statement ^p:P2051 ?exo; wikibase:rank wikibase:NormalRank; prov:wasDerivedFrom/pr:P248 ?sources }
-      BIND(REPLACE(CONCAT(STR(?msini_amount), IF(BOUND(?msini_upper), CONCAT(' ± ', STR(?msini_upper - ?msini_amount)), '')), '\\.', ',') AS ?msini)    
+      OPTIONAL { ?msini_statement ^p:P2051 ?exo; wikibase:rank wikibase:NormalRank; 
+                               psv:P2051/wikibase:quantityUnit [^schema:about [schema:name ?msini_unit; schema:isPartOf <https://ru.wikipedia.org/>]; wdt:P5061 ?msini_sym] }
+      FILTER (!BOUND(?msini_sym) || LANG(?msini_sym)="ru")
+      BIND(REPLACE(CONCAT(STR(?msini_amount), IF(BOUND(?msini_upper), CONCAT(' ± ', STR(?msini_upper - ?msini_amount)), '')
+                          , IF(BOUND(?msini_sym), CONCAT(" [[", ?msini_unit, "|", ?msini_sym, "]]"), "")
+                         ), '\\.', ',') AS ?msini)    
     } UNION {
       ?star wdt:P59/^pq:P59/^p:P360 wd:{0}; p:P398[ps:P398 ?exo; pq:P1545 ?num]
       OPTIONAL { ?m_statement ^p:P2067 ?exo; wikibase:rank wikibase:NormalRank; psv:P2067/wikibase:quantityAmount ?m_amount }
       OPTIONAL { ?m_statement ^p:P2067 ?exo; wikibase:rank wikibase:NormalRank; psv:P2067/wikibase:quantityUpperBound ?m_upper }
       OPTIONAL { ?m_statement ^p:P2067 ?exo; wikibase:rank wikibase:NormalRank; prov:wasDerivedFrom/pr:P248 ?sources }
-      BIND(REPLACE(CONCAT(STR(?m_amount), IF(BOUND(?m_upper), CONCAT(' ± ', STR(?m_upper - ?m_amount)), '')), '\\.', ',') AS ?m)    
+      OPTIONAL { ?m_statement ^p:P2067 ?exo; wikibase:rank wikibase:NormalRank; 
+                               psv:P2067/wikibase:quantityUnit [^schema:about [schema:name ?m_unit; schema:isPartOf <https://ru.wikipedia.org/>]; wdt:P5061 ?m_sym] }
+      FILTER (!BOUND(?m_sym) || LANG(?m_sym)="ru")
+      BIND(REPLACE(CONCAT(STR(?m_amount), IF(BOUND(?m_upper), CONCAT(' ± ', STR(?m_upper - ?m_amount)), '')
+                          , IF(BOUND(?m_sym), CONCAT(" [[", ?m_unit, "|", ?m_sym, "]]"), "")
+                         ), '\\.', ',') AS ?m)    
     }
     OPTIONAL { ?exo wdt:P5653 ?exoplanet_eu }
     BIND(IF(BOUND(?m), ?m, CONCAT("{{comment|>|масса экзопланеты, умноженная на угол наклонения}}", ?msini)) AS ?mass)
@@ -62,7 +72,7 @@ SELECT ?line WITH {
                 " ! scope='col'; class='unsortable' | [[Звезда]]\n",
                 " ! scope='col' class='unsortable'; | {{comment|#|Планета}}\n",
                 " ! scope='col' | Удалённость ([[Световой год|св.&nbsp;лет]])\n",
-                " ! scope='col' | [[Масса]] ([[Масса Юпитера|M<sub>J</sub>]])\n",
+                " ! scope='col' | [[Масса]]\n",
                 " ! scope='col' | [[Светимость]] звезды ({{Lo}})\n",
                 " ! scope='col' | [[Большая полуось]] ([[Астрономическая единица|а.&nbsp;е.]])\n",
                 " ! scope='col' | [[Эксцентриситет (орбита)|Эксцентриситет]]\n",
