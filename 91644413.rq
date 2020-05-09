@@ -30,13 +30,13 @@ SELECT ?line WITH {
       SELECT DISTINCT ?item ?itemLabel {
         wd:{0} wdt:P1423 ?constellation.
         ?item wdt:P59 ?constellation; p:P398/pq:P1545 []
-        SERVICE wikibase:label { bd:serviceParam wikibase:language "ru,en". }
+        SERVICE wikibase:label { bd:serviceParam wikibase:language "ru,en" }
       }
     } UNION {
       SELECT DISTINCT ?item ?itemLabel {
         wd:{0} wdt:P1423 ?constellation.
         ?item wdt:P59 ?constellation; p:P527[ps:P527/p:P398/pq:P1545 []; pq:P1545 []]
-        SERVICE wikibase:label { bd:serviceParam wikibase:language "ru,en". }
+        SERVICE wikibase:label { bd:serviceParam wikibase:language "ru,en" }
       }
     }  
     FILTER NOT EXISTS { [] p:P527[ps:P527 ?item; pq:P1545 []] }
@@ -72,7 +72,6 @@ SELECT ?line WITH {
       ('C3' ' |список3       =') 
       ('C4' '')
       ('D1' '') 
-      ('D2' ' |заголовок4    = [[Планетная система|Планетные<br>системы]]') 
       ('D3' ' |список4       =') 
       ('D4' '')
       ('E1' '') 
@@ -116,6 +115,11 @@ SELECT ?line WITH {
     } }
     BIND(CONCAT('* [[', ?ru, ']]') AS ?line)    
     BIND(CONCAT('EE', IF(STRSTARTS(?ru, 'HD '), CONCAT('HD', SUBSTR(REPLACE(?ru, 'HD ', '000000000'), STRLEN(?ru))), ?ru)) AS ?sortkey)
+  } UNION {
+    wd:{0} wdt:P1423 ?constellation
+    OPTIONAL { [] p:P360[ps:P360 wd:Q44559; pq:P59 ?constellation]; ^schema:about[schema:name ?ru; schema:isPartOf <https://ru.wikipedia.org/>] }
+    BIND ('D2' as ?sortkey)
+    BIND (CONCAT(' |заголовок4    = [[', IF(BOUND(?ru), ?ru, 'Планетная система'), '|Планетные<br>системы]]') AS ?line)
   } UNION {
     wd:{0} wdt:P1423 ?constellation.
     BIND ('F2' as ?sortkey)
