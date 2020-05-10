@@ -9,25 +9,25 @@ SELECT ?line WITH {
       OPTIONAL { ?lum_statement ^p:P2060 ?star; wikibase:rank wikibase:NormalRank; psv:P2060/wikibase:quantityAmount ?lum_amount }
       OPTIONAL { ?lum_statement ^p:P2060 ?star; wikibase:rank wikibase:NormalRank; psv:P2060/wikibase:quantityUpperBound ?lum_upper }
       OPTIONAL { ?lum_statement ^p:P2060 ?star; wikibase:rank wikibase:NormalRank; prov:wasDerivedFrom/pr:P248 ?sources }  
-      BIND(REPLACE(CONCAT(STR(?lum_amount), IF(BOUND(?lum_upper), CONCAT(' ± ', STR(?lum_upper - ?lum_amount)), '')), '\\.', ',') AS ?lum)
+      BIND(REPLACE(CONCAT(STR(?lum_amount), IF(BOUND(?lum_upper), CONCAT(" ± ", STR(?lum_upper - ?lum_amount)), "")), "\\.", ",") AS ?lum)
     } UNION {
       ?star wdt:P59/^pq:P59/^p:P360 wd:{0}; p:P398[ps:P398 ?exo; pq:P1545 ?num]
       OPTIONAL { ?per_statement ^p:P2146 ?exo; wikibase:rank wikibase:NormalRank; psv:P2146/wikibase:quantityAmount ?per_amount }
       OPTIONAL { ?per_statement ^p:P2146 ?exo; wikibase:rank wikibase:NormalRank; psv:P2146/wikibase:quantityUpperBound ?per_upper }
       OPTIONAL { ?per_statement ^p:P2146 ?exo; wikibase:rank wikibase:NormalRank; prov:wasDerivedFrom/pr:P248 ?sources }
-      BIND(REPLACE(CONCAT(STR(?per_amount), IF(BOUND(?per_upper), CONCAT(' ± ', STR(?per_upper - ?per_amount)), '')), '\\.', ',') AS ?per)
+      BIND(REPLACE(CONCAT(STR(?per_amount), IF(BOUND(?per_upper), CONCAT(" ± ", STR(?per_upper - ?per_amount)), "")), "\\.", ",") AS ?per)
     } UNION {
       ?star wdt:P59/^pq:P59/^p:P360 wd:{0}; p:P398[ps:P398 ?exo; pq:P1545 ?num]
       OPTIONAL { ?semi_statement ^p:P2233 ?exo; wikibase:rank wikibase:NormalRank; psv:P2233/wikibase:quantityAmount ?semi_amount }
       OPTIONAL { ?semi_statement ^p:P2233 ?exo; wikibase:rank wikibase:NormalRank; psv:P2233/wikibase:quantityUpperBound ?semi_upper }
       OPTIONAL { ?semi_statement ^p:P2233 ?exo; wikibase:rank wikibase:NormalRank; prov:wasDerivedFrom/pr:P248 ?sources }
-      BIND(REPLACE(CONCAT(STR(?semi_amount), IF(BOUND(?semi_upper), CONCAT(' ± ', STR(?semi_upper - ?semi_amount)), '')), '\\.', ',') AS ?semi)
+      BIND(REPLACE(CONCAT(STR(?semi_amount), IF(BOUND(?semi_upper), CONCAT(" ± ", STR(?semi_upper - ?semi_amount)), "")), "\\.", ",") AS ?semi)
     } UNION {
       ?star wdt:P59/^pq:P59/^p:P360 wd:{0}; p:P398[ps:P398 ?exo; pq:P1545 ?num]
       OPTIONAL { ?ecc_statement ^p:P1096 ?exo; wikibase:rank wikibase:NormalRank; psv:P1096/wikibase:quantityAmount ?ecc_amount }
       OPTIONAL { ?ecc_statement ^p:P1096 ?exo; wikibase:rank wikibase:NormalRank; psv:P1096/wikibase:quantityUpperBound ?ecc_upper }
       OPTIONAL { ?ecc_statement ^p:P1096 ?exo; wikibase:rank wikibase:NormalRank; prov:wasDerivedFrom/pr:P248 ?sources }
-      BIND(REPLACE(CONCAT(STR(?ecc_amount), IF(BOUND(?ecc_upper), CONCAT(' ± ', STR(?ecc_upper - ?ecc_amount)), '')), '\\.', ',') AS ?ecc)    
+      BIND(REPLACE(CONCAT(STR(?ecc_amount), IF(BOUND(?ecc_upper), CONCAT(" ± ", STR(?ecc_upper - ?ecc_amount)), "")), "\\.", ",") AS ?ecc)    
     } UNION {
       ?star wdt:P59/^pq:P59/^p:P360 wd:{0}; p:P398[ps:P398 ?exo; pq:P1545 ?num]
       OPTIONAL { ?msini_statement ^p:P2051 ?exo; wikibase:rank wikibase:NormalRank; psv:P2051/wikibase:quantityAmount ?msini_amount }
@@ -36,9 +36,9 @@ SELECT ?line WITH {
       OPTIONAL { ?msini_statement ^p:P2051 ?exo; wikibase:rank wikibase:NormalRank; 
                                psv:P2051/wikibase:quantityUnit [^schema:about [schema:name ?msini_unit; schema:isPartOf <https://ru.wikipedia.org/>]; wdt:P5061 ?msini_sym] }
       FILTER (!BOUND(?msini_sym) || LANG(?msini_sym)="ru")
-      BIND(REPLACE(CONCAT(STR(?msini_amount), IF(BOUND(?msini_upper), CONCAT(' ± ', STR(?msini_upper - ?msini_amount)), '')
+      BIND(REPLACE(CONCAT(STR(?msini_amount), IF(BOUND(?msini_upper), CONCAT(" ± ", STR(?msini_upper - ?msini_amount)), "")
                           , IF(BOUND(?msini_sym), CONCAT(" [[", ?msini_unit, "|", ?msini_sym, "]]"), "")
-                         ), '\\.', ',') AS ?msini)    
+                         ), "\\.", ",") AS ?msini)    
     } UNION {
       ?star wdt:P59/^pq:P59/^p:P360 wd:{0}; p:P398[ps:P398 ?exo; pq:P1545 ?num]
       OPTIONAL { ?m_statement ^p:P2067 ?exo; wikibase:rank wikibase:NormalRank; psv:P2067/wikibase:quantityAmount ?m_amount }
@@ -47,9 +47,9 @@ SELECT ?line WITH {
       OPTIONAL { ?m_statement ^p:P2067 ?exo; wikibase:rank wikibase:NormalRank; 
                                psv:P2067/wikibase:quantityUnit [^schema:about [schema:name ?m_unit; schema:isPartOf <https://ru.wikipedia.org/>]; wdt:P5061 ?m_sym] }
       FILTER (!BOUND(?m_sym) || LANG(?m_sym)="ru")
-      BIND(REPLACE(CONCAT(STR(?m_amount), IF(BOUND(?m_upper), CONCAT(' ± ', STR(?m_upper - ?m_amount)), '')
+      BIND(REPLACE(CONCAT(STR(?m_amount), IF(BOUND(?m_upper), CONCAT(" ± ", STR(?m_upper - ?m_amount)), "")
                           , IF(BOUND(?m_sym), CONCAT(" [[", ?m_unit, "|", ?m_sym, "]]"), "")
-                         ), '\\.', ',') AS ?m)    
+                         ), "\\.", ",") AS ?m)    
     }
     OPTIONAL { ?exo wdt:P5653 ?exoplanet_eu }
     BIND(IF(BOUND(?m), ?m, CONCAT("{{comment|>|масса экзопланеты, умноженная на угол наклонения}}", ?msini)) AS ?mass)
@@ -58,41 +58,48 @@ SELECT ?line WITH {
 } GROUP BY ?star ?num } AS %Q {
   {
     { SELECT (COUNT(*) AS ?exo_num) (COUNT(DISTINCT ?star) AS ?star_num) { INCLUDE %Q } }
-    BIND('A1' AS ?sortkey)
-    BIND(CONCAT("'''{{subst:PAGENAME}}''' содержит ", STR(?exo_num), " [[экзопланета|экзопланет]] в ", STR(?star_num), 
-                " разных [[Планетная система|планетных системах]], ") AS ?line)
-  } UNION {
     wd:{0} ^schema:about[schema:name ?name; schema:isPartOf <https://ru.wikipedia.org/>]; p:P360/pq:P59/^schema:about[schema:name ?ru; schema:isPartOf <https://ru.wikipedia.org/>]
-    BIND('A2' AS ?sortkey)
-    BIND(CONCAT("находящихся в созвездии [[", ?ru, "|", REPLACE(?name, "Список экзопланет в созвездии ", "") , "]] и отсортированных по возрастанию расстояния от Земли. ",
+    BIND("A1" AS ?sortkey)
+    BIND(CONCAT("'''{{subst:PAGENAME}}''' содержит ", STR(?exo_num), " [[экзопланета|экзопланет]] в ", STR(?star_num), 
+                " разных [[Планетная система|планетных системах]], находящихся в созвездии [[", ?ru, "|", REPLACE(?name, "Список экзопланет в созвездии ", "") , 
+                "]] и отсортированных по возрастанию расстояния от Земли. ",
                 "Учёные постоянно находят новые планеты вне [[Солнечная система|Солнечной системы]], поэтому список может быть неполон. ", 
-                "Оценить [[Зона обитаемости|зону обитаемости]] можно на основе светимости звезды.\n\n",
-                "{| class='wikitable sortable''\n",
-                " |-  style='white-space: normal;'\n", 
-                " ! scope='col'; class='unsortable' | [[Звезда]]\n",
-                " ! scope='col' class='unsortable'; | {{comment|#|Планета}}\n",
-                " ! scope='col' | Удалённость ([[Световой год|св.&nbsp;лет]])\n",
-                " ! scope='col' | [[Масса]]\n",
-                " ! scope='col' | [[Светимость]] звезды ({{Lo}})\n",
-                " ! scope='col' | [[Большая полуось]] ([[Астрономическая единица|а.&nbsp;е.]])\n",
-                " ! scope='col' | [[Эксцентриситет (орбита)|Эксцентриситет]]\n",
-                " ! scope='col' | [[Сидерический период|Год]] ([[день|суток]])\n",
-                " ! scope='col'; class='unsortable'; style='text-align:left;' | Прим.") AS ?line)
+                "Оценить [[Зона обитаемости|зону обитаемости]] можно на основе светимости звезды.") AS ?line)
+  } UNION {
+    VALUES (?sortkey ?line) { 
+      ("A2" "")
+      ("A3" "{| class='wikitable sortable'")
+      ("A4" " |-  style='white-space: normal;'") 
+      ("A5" " ! scope='col'; class='unsortable' | [[Звезда]]")
+      ("A6" " ! scope='col' class='unsortable'; | {{comment|#|Планета}}")
+      ("A7" " ! scope='col' | Удалённость ([[Световой год|св.&nbsp;лет]])")
+      ("A8" " ! scope='col' | [[Масса]]")
+      ("A9" " ! scope='col' | [[Светимость]] звезды ({{Lo}})")
+      ("AA" " ! scope='col' | [[Большая полуось]] ([[Астрономическая единица|а.&nbsp;е.]])")
+      ("AB" " ! scope='col' | [[Эксцентриситет (орбита)|Эксцентриситет]]")
+      ("AC" " ! scope='col' | [[Сидерический период|Год]] ([[день|суток]])")
+      ("AD" " ! scope='col'; class='unsortable'; style='text-align:left;' | Прим.")
+      ("C1" "|}")
+      ("C2" "")
+      ("C3" "== Примечания ==")
+      ("C4" "{{примечания}}")
+      ("C5" "[[Категория:Списки экзопланет]]")
+      ("C7" "[[Категория:Википедия:Автоматически формируемые списки экзопланет по созвездиям]]")
+    }
   } UNION {
     INCLUDE %Q
     OPTIONAL { [] schema:about ?star; schema:isPartOf <https://ru.wikipedia.org/>; schema:name ?ru }
-    BIND(CONCAT("B", SUBSTR(CONCAT('00000', STR(?ly)), STRLEN(STR(?ly))), ?num) AS ?sortkey)
-    BIND(CONCAT(" |-\n | ",IF(BOUND(?ru), CONCAT('[[', ?ru, IF(LCASE(?label) != LCASE(?ru), CONCAT('|', ?label), ''), ']]'), 
-                        CONCAT('{{нет статьи|', REPLACE(STR(?star), 'http://www.wikidata.org/entity/', ''), '|', ?label, '|Звезда}}')), " || ", 
+    BIND(CONCAT("B", SUBSTR(CONCAT("00000", STR(?ly)), STRLEN(STR(?ly))), ?num) AS ?sortkey)
+    BIND(CONCAT(" |-\n | ",IF(BOUND(?ru), CONCAT("[[", ?ru, IF(LCASE(?label) != LCASE(?ru), CONCAT("|", ?label), ""), "]]"), 
+                        CONCAT("{{нет статьи|", REPLACE(STR(?star), "http://www.wikidata.org/entity/", ""), "|", ?label, "|Звезда}}")), " || ", 
                 ?num, " || ", STR(?ly), " || ", IF(BOUND(?m), ?m, ""), " || ", IF(BOUND(?l), ?l, ""), " || ", IF(BOUND(?s), ?s, ""), " || ", 
                 IF(BOUND(?e), ?e, ""), " || ", IF(BOUND(?p), ?p, ""), " || ", 
                 IF(BOUND(?eu), CONCAT("[http://exoplanet.eu/catalog/", ?eu, "/ EPE]"), "")
-                , IF(?src != "", CONCAT(REPLACE(?src, 'http://www.wikidata.org/entity/[QP]', "{{source-ref|Q"), "}}" ), "")
+                , IF(?src != "", CONCAT(REPLACE(?src, "http://www.wikidata.org/entity/[QP]", "{{source-ref|Q"), "}}" ), "")
                ) AS ?line)
   } UNION {
     wd:{0} p:P360/pq:P59/wdt:P910/^schema:about[schema:name ?cat; schema:isPartOf <https://ru.wikipedia.org/>]
-    BIND('C1' AS ?sortkey)
-    BIND(CONCAT("|}\n\n== Примечания ==\n{{примечания}}\n[[Категория:Списки экзопланет]]\n[[", ?cat, 
-                "]]\n[[Категория:Википедия:Автоматически формируемые списки экзопланет по созвездиям]]") AS ?line)
+    BIND("C6" AS ?sortkey)
+    BIND(CONCAT("[[", ?cat, "]]") AS ?line)
   }
 } ORDER BY ?sortkey
