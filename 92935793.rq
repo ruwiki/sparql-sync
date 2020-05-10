@@ -49,6 +49,6 @@ SELECT ?line {
     } 
     SERVICE wikibase:label { bd:serviceParam wikibase:language "ru,en". }
   } }
-  BIND(IF(BOUND(?line), ?line, CONCAT(?prefix, IF(BOUND(?ru), CONCAT('[[', ?ru, IF(LCASE(?itemLabel) != LCASE(?ru), CONCAT('|', ?itemLabel), ''), ']]'),
+  BIND(IF(BOUND(?line), ?line, CONCAT(?prefix, IF(BOUND(?ru), CONCAT('[[', ?ru, ']]'),
                                                   CONCAT('{{нет статьи|', REPLACE(STR(?item), 'http://www.wikidata.org/entity/', ''), '|', ?itemLabel, ?postfix)))) AS ?line)
 } ORDER BY ?row
