@@ -1,56 +1,58 @@
 SELECT ?line WITH {
-  SELECT ?item (?itemLabel AS ?label) ?sortkey {
+  SELECT ?item ?label ?sortkey {
     {
       wd:{0} wdt:P1423 ?constellation.
       ?item wdt:P59 ?constellation; p:P528[pq:P972 wd:Q105616; wikibase:rank wikibase:NormalRank; ps:P528 ?code].
       MINUS { ?item wdt:P31 wd:Q43001876 }
       MINUS { ?item wdt:P31 wd:Q11276; wdt:P59 ?constellation }
       ?constellation wdt:P1813 ?short
-      BIND (REPLACE(?code, CONCAT(' ', STR(?short)), '') AS ?itemLabel)
-      BIND (CONCAT('A', REPLACE(IF(REGEX(?itemLabel, '^[A-Za-z]'), CONCAT('ωω',?itemLabel), 
-                                   IF(REGEX(?itemLabel, '\\s[A-Za-z][A-Za-z][A-Za-z]'), CONCAT('ω֍',?itemLabel), ?itemLabel)),'¹','1')) AS ?sortkey)
+      BIND (REPLACE(?code, CONCAT(' ', STR(?short)), '') AS ?label)
+      BIND (CONCAT('A', REPLACE(IF(REGEX(?label, '^[A-Za-z]'), CONCAT('ωω',?label), 
+                                   IF(REGEX(?label, '\\s[A-Za-z][A-Za-z][A-Za-z]'), CONCAT('ω֍',?label), ?label)),'¹','1')) AS ?sortkey)
     } UNION {
       wd:{0} wdt:P1423 ?constellation.
       ?item wdt:P59 ?constellation; p:P528[pq:P972 wd:Q111116; wikibase:rank wikibase:NormalRank; ps:P528 ?code].
       FILTER (?item NOT IN (wd:Q2469, wd:Q14031))
       ?constellation wdt:P1813 ?short
-      BIND(REPLACE(?code, CONCAT(' ', STR(?short)), '') AS ?itemLabel)
-      BIND(CONCAT('BB', IF(!CONTAINS(?itemLabel, ' '), SUBSTR(CONCAT('00', ?itemLabel), STRLEN(?itemLabel)), 
-                           CONCAT('֍', SUBSTR(CONCAT('00', ?itemLabel), STRLEN(STRBEFORE(?itemLabel, ' ')))))) AS ?sortkey)
+      BIND(REPLACE(?code, CONCAT(' ', STR(?short)), '') AS ?label)
+      BIND(CONCAT('BB', IF(!CONTAINS(?label, ' '), SUBSTR(CONCAT('00', ?label), STRLEN(?label)), 
+                           CONCAT('֍', SUBSTR(CONCAT('00', ?label), STRLEN(STRBEFORE(?label, ' ')))))) AS ?sortkey)
     } UNION {
       wd:{0} wdt:P1423 ?constellation.
       ?item wdt:P59 ?constellation; p:P528[pq:P972 wd:Q222662; wikibase:rank wikibase:NormalRank; ps:P528 ?code]; wikibase:sitelinks ?iw
       FILTER (?item NOT IN (wd:Q43933, wd:Q841138, wd:Q872204, wd:Q913140, wd:Q1049146, wd:Q554280))
       FILTER NOT EXISTS { ?item wdt:P31 wd:Q3937 }
       ?constellation wdt:P1813 ?short
-      BIND(REPLACE(?code, CONCAT(' ', STR(?short)), '') AS ?itemLabel)
-      FILTER(REGEX(?itemLabel, '[A-Z].*') && (?iw > 0))
-      BIND(REPLACE(CONCAT(IF(REGEX(?itemLabel, '^[R-Z]+$'), 'CC', 'CD'), STR(STRLEN(?itemLabel)), ?itemLabel), '[R-Z]?\\s', '֍') AS ?sortkey)
+      BIND(REPLACE(?code, CONCAT(' ', STR(?short)), '') AS ?label)
+      FILTER(REGEX(?label, '[A-Z].*') && (?iw > 0))
+      BIND(REPLACE(CONCAT(IF(REGEX(?label, '^[R-Z]+$'), 'CC', 'CD'), STR(STRLEN(?label)), ?label), '[R-Z]?\\s', '֍') AS ?sortkey)
     } UNION {
-      SELECT DISTINCT ?item ?itemLabel {
+      { SELECT DISTINCT ?item ?itemLabel {
         wd:{0} wdt:P1423 ?constellation.
         ?item wdt:P59 ?constellation; p:P398/pq:P1545 []
         SERVICE wikibase:label { bd:serviceParam wikibase:language "ru,en" }
-      }
+      } }
+      BIND(CONCAT(UCASE(SUBSTR(?itemLabel, 1, 1)), SUBSTR(?itemLabel, 2)) AS ?label)
     } UNION {
-      SELECT DISTINCT ?item ?itemLabel {
+      { SELECT DISTINCT ?item ?itemLabel {
         wd:{0} wdt:P1423 ?constellation.
         ?item wdt:P59 ?constellation; p:P527[ps:P527/p:P398/pq:P1545 []; pq:P1545 []]
         SERVICE wikibase:label { bd:serviceParam wikibase:language "ru,en" }
-      }
-    }  
+      } }
+      BIND(CONCAT(UCASE(SUBSTR(?itemLabel, 1, 1)), SUBSTR(?itemLabel, 2)) AS ?label)
+    }
     FILTER NOT EXISTS { [] p:P527[ps:P527 ?item; pq:P1545 []] }
-    BIND(IF(BOUND(?sortkey), ?sortkey, CONCAT('DD', IF(STRSTARTS(?itemLabel, 'COROT-'), CONCAT('COROT', SUBSTR(REPLACE(?itemLabel, 'COROT-', '00000000'), STRLEN(?itemLabel))), 
-                                            IF(STRSTARTS(?itemLabel, 'HAT-P-'), CONCAT('HATP', SUBSTR(REPLACE(?itemLabel, 'HAT-P-', '00000000'), STRLEN(?itemLabel))), 
-                                            IF(STRSTARTS(?itemLabel, 'HATS-'), CONCAT('HATS', SUBSTR(REPLACE(?itemLabel, 'HATS-', '00000000'), STRLEN(?itemLabel))), 
-                                            IF(STRSTARTS(?itemLabel, 'HD '), CONCAT('HD', SUBSTR(REPLACE(?itemLabel, 'HD ', '00000000'), STRLEN(?itemLabel))), 
-                                            IF(STRSTARTS(?itemLabel, 'HIP '), CONCAT('HIP', SUBSTR(REPLACE(?itemLabel, 'HIP ', '00000000'), STRLEN(?itemLabel))), 
-                                            IF(STRSTARTS(?itemLabel, 'K2-'), CONCAT('K2', SUBSTR(REPLACE(?itemLabel, 'K2-', '000000'), STRLEN(?itemLabel))), 
-                                            IF(STRSTARTS(?itemLabel, 'Kepler-'), CONCAT('KE', SUBSTR(REPLACE(?itemLabel, 'Kepler-', '00000000000'), STRLEN(?itemLabel))), 
-                                            IF(STRSTARTS(?itemLabel, 'KOI-'), CONCAT('KOI', SUBSTR(REPLACE(?itemLabel, 'KOI-', '00000000'), STRLEN(?itemLabel))), 
-                                            IF(STRSTARTS(?itemLabel, 'TOI-'), CONCAT('TOI', SUBSTR(REPLACE(?itemLabel, 'TOI-', '00000000'), STRLEN(?itemLabel))), 
-                                            IF(STRSTARTS(?itemLabel, 'WASP-'), CONCAT('WASP', SUBSTR(REPLACE(?itemLabel, 'WASP-', '00000000'), STRLEN(?itemLabel))), 
-                                               UCASE(?itemLabel))))))))))))) AS ?sortkey)
+    BIND(IF(BOUND(?sortkey), ?sortkey, CONCAT('DD', IF(STRSTARTS(?label, 'COROT-'), CONCAT('COROT', SUBSTR(REPLACE(?label, 'COROT-', '00000000'), STRLEN(?label))), 
+                                            IF(STRSTARTS(?label, 'HAT-P-'), CONCAT('HATP', SUBSTR(REPLACE(?label, 'HAT-P-', '00000000'), STRLEN(?label))), 
+                                            IF(STRSTARTS(?label, 'HATS-'), CONCAT('HATS', SUBSTR(REPLACE(?label, 'HATS-', '00000000'), STRLEN(?label))), 
+                                            IF(STRSTARTS(?label, 'HD '), CONCAT('HD', SUBSTR(REPLACE(?label, 'HD ', '00000000'), STRLEN(?label))), 
+                                            IF(STRSTARTS(?label, 'HIP '), CONCAT('HIP', SUBSTR(REPLACE(?label, 'HIP ', '00000000'), STRLEN(?label))), 
+                                            IF(STRSTARTS(?label, 'K2-'), CONCAT('K2', SUBSTR(REPLACE(?label, 'K2-', '000000'), STRLEN(?label))), 
+                                            IF(STRSTARTS(?label, 'Kepler-'), CONCAT('KE', SUBSTR(REPLACE(?label, 'Kepler-', '00000000000'), STRLEN(?label))), 
+                                            IF(STRSTARTS(?label, 'KOI-'), CONCAT('KOI', SUBSTR(REPLACE(?label, 'KOI-', '00000000'), STRLEN(?label))), 
+                                            IF(STRSTARTS(?label, 'TOI-'), CONCAT('TOI', SUBSTR(REPLACE(?label, 'TOI-', '00000000'), STRLEN(?label))), 
+                                            IF(STRSTARTS(?label, 'WASP-'), CONCAT('WASP', SUBSTR(REPLACE(?label, 'WASP-', '00000000'), STRLEN(?label))), 
+                                               UCASE(?label))))))))))))) AS ?sortkey)
   }
 } AS %Q {
   {
