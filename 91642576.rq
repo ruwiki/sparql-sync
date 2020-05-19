@@ -5,7 +5,8 @@ SELECT ?line WITH {
     OPTIONAL { ?type wdt:P1424 ?main }
     OPTIONAL { [] schema:about ?catalog; schema:isPartOf <https://ru.wikipedia.org/>; schema:name ?catalogRu }
     BIND(IF(BOUND(?main), ?main, wd:Q42054995) AS ?infobox)
-    [] schema:about ?infobox; schema:isPartOf <https://ru.wikipedia.org/> ; schema:name ?template.
+    [] schema:about ?infobox; schema:isPartOf <https://ru.wikipedia.org/> ; schema:name ?ru_infobox.
+    BIND(REPLACE(?ru_infobox, ' ', '_') AS ?template)
     ?catalog rdfs:label ?catalogLabel.
 	FILTER(LANG(?catalogLabel) = "ru")
     SERVICE wikibase:label { bd:serviceParam wikibase:language 'ru' }
