@@ -28,7 +28,7 @@ SELECT (MAX(?parent) as ?star) ?num (MAX(?parentLabel) as ?label) (MAX(?dist) AS
                           , IF(BOUND(?per_sym), CONCAT(" [[", ?per_unit, "|", ?per_sym, "]]"), "")
                          ) AS ?per)
     } UNION {
-      ?host wdt:P59/^pq:P59/^p:P360 wd:Q21194221; p:P398[ps:P398 ?exo; pq:P1545 ?num]
+      ?host wdt:P59/^pq:P59/^p:P360 wd:{0}; p:P398[ps:P398 ?exo; pq:P1545 ?num]
       OPTIONAL { ?semi_statement ^p:P2233 ?exo; wikibase:rank wikibase:NormalRank; psv:P2233/wikibase:quantityAmount ?semi_amount }
       OPTIONAL { ?semi_statement ^p:P2233 ?exo; wikibase:rank wikibase:NormalRank; psv:P2233/wikibase:quantityUpperBound ?semi_upper }
       OPTIONAL { ?semi_statement ^p:P2233 ?exo; wikibase:rank wikibase:NormalRank; prov:wasDerivedFrom/pr:P248 ?source }
