@@ -45,7 +45,7 @@ SELECT (MAX(?parent) as ?star) ?num (MAX(?parentLabel) as ?label) (MAX(?dist) AS
       OPTIONAL { ?msini_statement ^p:P2051 ?exo; wikibase:rank wikibase:NormalRank; psv:P2051/wikibase:quantityUpperBound ?msini_upper }
       OPTIONAL { ?msini_statement ^p:P2051 ?exo; wikibase:rank wikibase:NormalRank; psv:P2051/wikibase:quantityUnit ?msini_unit }
       OPTIONAL { ?msini_statement ^p:P2051 ?exo; wikibase:rank wikibase:NormalRank; prov:wasDerivedFrom/pr:P248 ?source }
-      BIND(IF(?msini_unit = wd:Q651336, 100, "NaN"^^xsd:float) AS ?msini_mult)
+      BIND(IF(?msini_unit = wd:Q651336, 100, IF(?msini_unit = wd:Q681996000, 0.31780, "NaN"^^xsd:float)) AS ?msini_mult)
       BIND(IF(BOUND(?msini_upper), ROUND(?msini_mult*(?msini_upper - ?msini_amount))/100, 0) AS ?msini_error)
       BIND(REPLACE(IF(?msini_error>0, CONCAT(STR(ROUND(?msini_mult * ?msini_amount)/100), " ± ", STR(?msini_error)), STR(ROUND(?msini_mult * ?msini_amount)/100)), "\\.", ",") AS ?msini)
     } UNION {
