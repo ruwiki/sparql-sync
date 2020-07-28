@@ -30,6 +30,7 @@ SELECT ?line WITH {
       { SELECT DISTINCT ?item ?itemLabel {
         wd:{0} wdt:P1423 ?constellation.
         ?item wdt:P59 ?constellation; p:P398/pq:P1545 []
+        FILTER NOT EXISTS { [] p:P527[ps:P527 ?item; pq:P1545 []] }
         SERVICE wikibase:label { bd:serviceParam wikibase:language "ru,en" }
       } }
       BIND(CONCAT(UCASE(SUBSTR(?itemLabel, 1, 1)), SUBSTR(?itemLabel, 2)) AS ?label)
@@ -41,7 +42,6 @@ SELECT ?line WITH {
       } }
       BIND(CONCAT(UCASE(SUBSTR(?itemLabel, 1, 1)), SUBSTR(?itemLabel, 2)) AS ?label)
     }
-    FILTER NOT EXISTS { [] p:P527[ps:P527 ?item; pq:P1545 []] }
     BIND(IF(BOUND(?sortkey), ?sortkey, CONCAT('DD', IF(STRSTARTS(?label, 'COROT-'), CONCAT('COROT', SUBSTR(REPLACE(?label, 'COROT-', '00000000'), STRLEN(?label))), 
                                             IF(STRSTARTS(?label, 'HAT-P-'), CONCAT('HATP', SUBSTR(REPLACE(?label, 'HAT-P-', '00000000'), STRLEN(?label))), 
                                             IF(STRSTARTS(?label, 'HATS-'), CONCAT('HATS', SUBSTR(REPLACE(?label, 'HATS-', '00000000'), STRLEN(?label))), 
