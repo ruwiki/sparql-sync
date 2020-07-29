@@ -97,7 +97,6 @@ SELECT (MAX(?parent) AS ?star) (MAX(?number) AS ?num) (MAX(?parentLabel) AS ?lab
       ("C2" "")
       ("C3" "== Примечания ==")
       ("C4" "{{примечания}}")
-      ("C5" "[[Категория:Списки экзопланет]]")
       ("C7" "[[Категория:Википедия:Автоматически формируемые списки экзопланет по созвездиям]]")
     }
   } UNION {
@@ -111,6 +110,10 @@ SELECT (MAX(?parent) AS ?star) (MAX(?number) AS ?num) (MAX(?parentLabel) AS ?lab
                 IF(BOUND(?dr2), CONCAT("<sup>[http://vizier.u-strasbg.fr/viz-bin/VizieR-S?", ENCODE_FOR_URI(?dr2), " DR2]</sup>"), ""), 
                 REPLACE(REPLACE(?src, "(Q\\d+)", "{{source-ref|$1}}"), " ", "")
                ) AS ?line)
+  } UNION {
+    wd:{0} p:P360/pq:P59/^schema:about[schema:name ?ru; schema:isPartOf <https://ru.wikipedia.org/>]
+    BIND("C5" AS ?sortkey)
+    BIND(CONCAT("[[Категория:Списки экзопланет|",?ru, "]]") AS ?line)
   } UNION {
     wd:{0} p:P360/pq:P59/wdt:P910/^schema:about[schema:name ?cat; schema:isPartOf <https://ru.wikipedia.org/>]
     BIND("C6" AS ?sortkey)
