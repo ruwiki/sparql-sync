@@ -52,7 +52,7 @@ SELECT ?line WITH {
                                             IF(STRSTARTS(?label, 'KOI-'), CONCAT('KOI', SUBSTR(REPLACE(?label, 'KOI-', '00000000'), STRLEN(?label))), 
                                             IF(STRSTARTS(?label, 'TOI-'), CONCAT('TOI', SUBSTR(REPLACE(?label, 'TOI-', '00000000'), STRLEN(?label))), 
                                             IF(STRSTARTS(?label, 'WASP-'), CONCAT('WASP', SUBSTR(REPLACE(?label, 'WASP-', '00000000'), STRLEN(?label))), 
-                                            IF(STRSTARTS(?label, 'Глизе '), CONCAT('ГЛИЗЕ', SUBSTR(REPLACE(?label, 'Глизе ', '00000000'), STRLEN(?label))), 
+                                            IF(STRSTARTS(?label, 'Глизе '), CONCAT('ГЛИЗЕ', SUBSTR(REPLACE(?label, 'Глизе ', '0000000000'), STRLEN(?label))), 
                                                UCASE(?label)))))))))))))) AS ?sortkey)
   }
 } AS %Q {
