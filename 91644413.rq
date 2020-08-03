@@ -13,7 +13,8 @@ SELECT ?line WITH {
       ?item wdt:P59 ?constellation; p:P528[pq:P972 wd:Q111116; wikibase:rank wikibase:NormalRank; ps:P528 ?code].
       FILTER (?item NOT IN (wd:Q2469, wd:Q14031))
       BIND(REPLACE(?code, CONCAT(' ', STR(?short)), '') AS ?label)
-      BIND(CONCAT('BB', UCASE(STRAFTER(?label,' ')), SUBSTR(CONCAT('00', STRBEFORE(CONCAT(?label, ' '),' ')), STRLEN(STRBEFORE(CONCAT(?label, ' '),' ')))) AS ?sortkey)
+      BIND(CONCAT('BB', IF(CONTAINS(?label,' '), '֍', ''), UCASE(STRAFTER(?label,' ')), 
+                  SUBSTR(CONCAT('00', STRBEFORE(CONCAT(?label, ' '),' ')), STRLEN(STRBEFORE(CONCAT(?label, ' '),' ')))) AS ?sortkey)
     } UNION {
       { SELECT DISTINCT * { ?constellation ^wdt:P1423 wd:{0}; wdt:P1813 ?short } }
       ?item wdt:P59 ?constellation; p:P528[pq:P972 wd:Q222662; wikibase:rank wikibase:NormalRank; ps:P528 ?code]; wikibase:sitelinks ?iw
