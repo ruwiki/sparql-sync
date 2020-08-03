@@ -1,28 +1,24 @@
 SELECT ?line WITH {
   SELECT ?item ?label ?sortkey {
     {
-      wd:{0} wdt:P1423 ?constellation.
+      { SELECT DISTINCT * { ?constellation ^wdt:P1423 wd:{0}; wdt:P1813 ?short } }
       ?item wdt:P59 ?constellation; p:P528[pq:P972 wd:Q105616; wikibase:rank wikibase:NormalRank; ps:P528 ?code].
       MINUS { ?item wdt:P31 wd:Q43001876 }
       MINUS { ?item wdt:P31 wd:Q11276; wdt:P59 ?constellation }
-      ?constellation wdt:P1813 ?short
       BIND (REPLACE(?code, CONCAT(' ', STR(?short)), '') AS ?label)
       BIND (CONCAT('A', REPLACE(IF(REGEX(?label, '^[A-Za-z]'), CONCAT('ωω',?label), 
                                    IF(REGEX(?label, '\\s[A-Za-z][A-Za-z][A-Za-z]'), CONCAT('ω֍',?label), ?label)),'¹','1')) AS ?sortkey)
     } UNION {
-      wd:{0} wdt:P1423 ?constellation.
+      { SELECT DISTINCT * { ?constellation ^wdt:P1423 wd:{0}; wdt:P1813 ?short } }
       ?item wdt:P59 ?constellation; p:P528[pq:P972 wd:Q111116; wikibase:rank wikibase:NormalRank; ps:P528 ?code].
       FILTER (?item NOT IN (wd:Q2469, wd:Q14031))
-      ?constellation wdt:P1813 ?short
       BIND(REPLACE(?code, CONCAT(' ', STR(?short)), '') AS ?label)
-      BIND(CONCAT('BB', IF(!CONTAINS(?label, ' '), SUBSTR(CONCAT('00', ?label), STRLEN(?label)), 
-                           CONCAT('֍', SUBSTR(CONCAT('00', ?label), STRLEN(STRBEFORE(?label, ' ')))))) AS ?sortkey)
+      BIND(CONCAT('BB', UCASE(STRAFTER(?label,' ')), SUBSTR(CONCAT('00', STRBEFORE(CONCAT(?label, ' '),' ')), STRLEN(STRBEFORE(CONCAT(?label, ' '),' ')))) AS ?sortkey)
     } UNION {
-      wd:{0} wdt:P1423 ?constellation.
+      { SELECT DISTINCT * { ?constellation ^wdt:P1423 wd:{0}; wdt:P1813 ?short } }
       ?item wdt:P59 ?constellation; p:P528[pq:P972 wd:Q222662; wikibase:rank wikibase:NormalRank; ps:P528 ?code]; wikibase:sitelinks ?iw
       FILTER (?item NOT IN (wd:Q43933, wd:Q841138, wd:Q872204, wd:Q913140, wd:Q1049146, wd:Q554280, wd:Q1043747))
       FILTER NOT EXISTS { ?item wdt:P31 wd:Q3937 }
-      ?constellation wdt:P1813 ?short
       BIND(REPLACE(?code, CONCAT(' ', STR(?short)), '') AS ?label)
       FILTER(REGEX(?label, '[A-Z].*') && (?iw > 0))
       BIND(REPLACE(CONCAT(IF(REGEX(?label, '^[R-Z]+$'), 'CC', 'CD'), STR(STRLEN(?label)), ?label), '[R-Z]?\\s', '֍') AS ?sortkey)
