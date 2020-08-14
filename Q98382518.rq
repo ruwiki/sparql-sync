@@ -1,0 +1,27 @@
+SELECT ?line {
+  {
+    VALUES (?sortkey ?line) { 
+      ("A1" "'''{{subst:PAGENAME}}''' содержит неполный перечень звёзд, относимый астрономами к этому [[рассеянное звездное скопление|расеянному скоплению]], отсортированный в порядке увеличения видимой звёздной величины.")
+      ("A2" "")
+      ("A3" "{| class='wikitable sortable' width=100%")
+      ("A4" " |-  style='white-space: normal;'") 
+      ("A5" " ! scope='col' | Звезда")
+      ("A6" " ! scope='col' | [[Видимая звёздная величина]]")
+      ("A7" " ! scope='col' | [[Спектральные классы звёзд|Спектральный класс]]")
+      ("C1" " |}")
+      ("C2" "")
+      ("C3" "[[Категория:Списки звёзд]]")
+      ("C4" "[[Категория:Википедия:Автоматически формируемые списки звёзд по скоплениям]]")
+    }
+  } UNION { 
+    { SELECT ?item ?itemLabel ?ru ?mag ?spectr {
+      ?item wdt:P361 wd:Q13423; wdt:P215 ?spectr; p:P1215[ps:P1215 ?mag; pq:P1227 wd:Q4892529]
+      SERVICE wikibase:label { bd:serviceParam wikibase:language "ru,en" }
+    } }
+    OPTIONAL {[] schema:about ?item; schema:isPartOf <https://ru.wikipedia.org/>; schema:name ?ru }
+    BIND(CONCAT(" |-\n | ",IF(BOUND(?ru), CONCAT("[[", ?ru, IF(LCASE(?itemLabel) != LCASE(?ru), CONCAT("|", ?itemLabel), ""), "]]"), 
+                              CONCAT("{{нет статьи|", REPLACE(STR(?item), "http://www.wikidata.org/entity/", ""), "|", ?itemLabel, "|Звезда}}")), 
+                " || ", IF(BOUND(?mag), REPLACE(STR(?mag), "\\.", ","), ""), " || ", IF(BOUND(?spectr), ?spectr, "")) AS ?line)
+    BIND(CONCAT("B", IF(BOUND(?mag), SUBSTR(CONCAT("0000", STR(ROUND(?mag*1000))), STRLEN(STR(ROUND(?mag*1000)))), "U")) AS ?sortkey )
+  }
+} ORDER BY ?sortkey
