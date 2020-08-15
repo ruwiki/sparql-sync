@@ -6,22 +6,37 @@ SELECT ?line {
       ("A3" "{| class='wikitable sortable' width=100%")
       ("A4" " |-  style='white-space: normal;'") 
       ("A5" " ! scope='col' | Звезда")
-      ("A6" " ! scope='col' | [[Видимая звёздная величина]]")
-      ("A7" " ! scope='col' | [[Спектральные классы звёзд|Спектральный класс]]")
+      ("A6" " ! scope='col' | [[Прямое восхождение]]")
+      ("A7" " ! scope='col' | [[Склонение]]")
+      ("A8" " ! scope='col' | [[Видимая звёздная величина]]")
+      ("A8" " ! scope='col' | [[Спектральные классы звёзд|Спектральный класс]]")
       ("C1" " |}")
       ("C2" "")
       ("C3" "[[Категория:Списки звёзд]]")
       ("C4" "[[Категория:Википедия:Автоматически формируемые списки звёзд по скоплениям]]")
     }
   } UNION { 
-    { SELECT ?item ?itemLabel ?ru ?mag ?spectr {
-      ?item wdt:P361 wd:Q13423; wdt:P215 ?spectr; p:P1215[ps:P1215 ?mag; pq:P1227 wd:Q4892529]
+    { SELECT ?item ?itemLabel ?ru ?mag ?spectr ?ra_raw ?dec_raw {
+      ?item wdt:P361 wd:Q13423; wdt:P215 ?spectr; p:P1215[ps:P1215 ?mag; pq:P1227 wd:Q4892529]; wdt:P6257 ?ra_raw; wdt:P6257 ?dec_raw
       SERVICE wikibase:label { bd:serviceParam wikibase:language "ru,en" }
     } }
+    BIND (FLOOR(?ra_raw/15) AS ?ra_hrs)
+    BIND (FLOOR((?ra_raw/15 - ?ra_hrs)*60) AS ?ra_min)
+    BIND (ROUND(((?ra_raw/15 - ?ra_hrs)*60 - ?ra_min)*60) AS ?ra_sec)
+    BIND (CONCAT('{{RA|', IF(STRLEN(STR(?ra_hrs)) = 1, '0', ''), STR(?ra_hrs), 
+                     '|', IF(STRLEN(STR(?ra_min)) = 1, '0', ''), STR(?ra_min), 
+                     '|', IF(STRLEN(STR(?ra_sec)) = 1, '0', ''), STR(?ra_sec), '}}') as ?ra)
+    BIND (IF(?dec_raw < 0, '-', '+') AS ?sig)
+    BIND (FLOOR(ABS(?dec_raw)) AS ?dec_deg)
+    BIND (FLOOR((ABS(?dec_raw) - ?dec_deg)*60) AS ?dec_min)
+    BIND (ROUND(((ABS(?dec_raw) - ?dec_deg)*60 - ?dec_min)*60) AS ?dec_sec)
+    BIND (CONCAT('{{DEC|', ?sig, IF(STRLEN(STR(?dec_deg)) = 1, '0', ''), STR(?dec_deg), 
+                      '|', IF(STRLEN(STR(?dec_min)) = 1, '0', ''), STR(?dec_min), 
+                      '|', IF(STRLEN(STR(?dec_sec)) = 1, '0', ''), STR(?dec_sec), '}}') as ?dec)  
     OPTIONAL {[] schema:about ?item; schema:isPartOf <https://ru.wikipedia.org/>; schema:name ?ru }
     BIND(CONCAT(" |-\n | ",IF(BOUND(?ru), CONCAT("[[", ?ru, IF(LCASE(?itemLabel) != LCASE(?ru), CONCAT("|", ?itemLabel), ""), "]]"), 
                               CONCAT("{{нет статьи|", REPLACE(STR(?item), "http://www.wikidata.org/entity/", ""), "|", ?itemLabel, "|Звезда}}")), 
-                " || ", IF(BOUND(?mag), REPLACE(STR(?mag), "\\.", ","), ""), " || ", IF(BOUND(?spectr), ?spectr, "")) AS ?line)
-    BIND(CONCAT("B", IF(BOUND(?mag), SUBSTR(CONCAT("0000", STR(ROUND(?mag*1000))), STRLEN(STR(ROUND(?mag*1000)))), "U")) AS ?sortkey )
+                " || ", ?ra, " || ", ?dec, " || ", IF(BOUND(?mag), REPLACE(STR(?mag), "\\.", ","), ""), " || ", IF(BOUND(?spectr), ?spectr, "")) AS ?line)
+    BIND(CONCAT("B", IF(BOUND(?mag), SUBSTR(CONCAT("0000", STR(ROUND(?mag*1000))), STRLEN(STR(ROUND(?mag*1000)))), "U"), ?itemLabel) AS ?sortkey )
   }
 } ORDER BY ?sortkey
