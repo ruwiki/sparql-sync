@@ -7,7 +7,7 @@ SELECT ?line {
       ("A4" " |-  style='white-space: normal;'") 
       ("A5" " ! scope='col' | Звезда")
       ("A6" " ! scope='col' | [[Прямое восхождение]]")
-      ("A7" " ! scope='col' | [[Склонение]]")
+      ("A7" " ! scope='col' | [[Склонение (астрономия)|Склонение]]")
       ("A8" " ! scope='col' | [[Видимая звёздная величина]]")
       ("A8" " ! scope='col' | [[Спектральные классы звёзд|Спектральный класс]]")
       ("C1" " |}")
@@ -23,20 +23,19 @@ SELECT ?line {
     BIND (FLOOR(?ra_raw/15) AS ?ra_hrs)
     BIND (FLOOR((?ra_raw/15 - ?ra_hrs)*60) AS ?ra_min)
     BIND (ROUND(((?ra_raw/15 - ?ra_hrs)*60 - ?ra_min)*60) AS ?ra_sec)
-    BIND (CONCAT('{{RA|', IF(STRLEN(STR(?ra_hrs)) = 1, '0', ''), STR(?ra_hrs), 
-                     '|', IF(STRLEN(STR(?ra_min)) = 1, '0', ''), STR(?ra_min), 
-                     '|', IF(STRLEN(STR(?ra_sec)) = 1, '0', ''), STR(?ra_sec), '}}') as ?ra)
-    BIND (IF(?dec_raw < 0, '-', '+') AS ?sig)
     BIND (FLOOR(ABS(?dec_raw)) AS ?dec_deg)
     BIND (FLOOR((ABS(?dec_raw) - ?dec_deg)*60) AS ?dec_min)
-    BIND (ROUND(((ABS(?dec_raw) - ?dec_deg)*60 - ?dec_min)*60) AS ?dec_sec)
-    BIND (CONCAT('{{DEC|', ?sig, IF(STRLEN(STR(?dec_deg)) = 1, '0', ''), STR(?dec_deg), 
-                      '|', IF(STRLEN(STR(?dec_min)) = 1, '0', ''), STR(?dec_min), 
-                      '|', IF(STRLEN(STR(?dec_sec)) = 1, '0', ''), STR(?dec_sec), '}}') as ?dec)  
+    BIND (ROUND(((ABS(?dec_raw) - ?dec_deg)*60 - ?dec_min)*60) AS ?dec_sec) 
     OPTIONAL {[] schema:about ?item; schema:isPartOf <https://ru.wikipedia.org/>; schema:name ?ru }
     BIND(CONCAT(" |-\n | ",IF(BOUND(?ru), CONCAT("[[", ?ru, IF(LCASE(?itemLabel) != LCASE(?ru), CONCAT("|", ?itemLabel), ""), "]]"), 
-                              CONCAT("{{нет статьи|", REPLACE(STR(?item), "http://www.wikidata.org/entity/", ""), "|", ?itemLabel, "|Звезда}}")), 
-                " || ", ?ra, " || ", ?dec, " || ", IF(BOUND(?mag), REPLACE(STR(?mag), "\\.", ","), ""), " || ", IF(BOUND(?spectr), ?spectr, "")) AS ?line)
+                              CONCAT("{{нет статьи|", REPLACE(STR(?item), "http://www.wikidata.org/entity/", ""), "|", ?itemLabel, "|Звезда}}")), " || ", 
+                IF(STRLEN(STR(?ra_hrs)) = 1, "0", ""), STR(?ra_hrs), "<sup>ч</sup>&nbsp;", 
+                IF(STRLEN(STR(?ra_min)) = 1, "0", ""), STR(?ra_min), "<sup>м</sup>&nbsp;", 
+                IF(STRLEN(STR(?ra_sec)) = 1, "0", ""), STR(?ra_sec), "<sup>с</sup> || ", 
+                IF(?dec_raw < 0, "-", "+"), IF(STRLEN(STR(?dec_deg)) = 1, "0", ""), STR(?dec_deg), "°&nbsp;",
+                IF(STRLEN(STR(?dec_min)) = 1, "0", ""), STR(?dec_min), "&prime;&nbsp;", 
+                IF(STRLEN(STR(?dec_sec)) = 1, "0", ""), STR(?dec_sec), "&Prime; || ", 
+                IF(BOUND(?mag), REPLACE(STR(?mag), "\\.", ","), ""), " || ", IF(BOUND(?spectr), ?spectr, "")) AS ?line)
     BIND(CONCAT("B", IF(BOUND(?mag), SUBSTR(CONCAT("0000", STR(ROUND(?mag*1000))), STRLEN(STR(ROUND(?mag*1000)))), "U"), ?itemLabel) AS ?sortkey )
   }
 } ORDER BY ?sortkey
