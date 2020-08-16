@@ -17,7 +17,9 @@ SELECT ?line {
     }
   } UNION { 
     { SELECT ?item ?itemLabel ?ru ?mag ?spectr ?ra_raw ?dec_raw {
-      ?item wdt:P361 wd:Q13423; wdt:P215 ?spectr; p:P1215[ps:P1215 ?mag; pq:P1227 wd:Q4892529]; wdt:P6257 ?ra_raw; wdt:P6257 ?dec_raw
+      ?item wdt:P361 wd:Q13423; wdt:P6257 ?ra_raw; wdt:P6257 ?dec_raw
+      OPTIONAL { ?item wdt:P215 ?spectr }
+      OPTIONAL { ?item p:P1215[ps:P1215 ?mag; pq:P1227 wd:Q4892529] }
       SERVICE wikibase:label { bd:serviceParam wikibase:language "ru,en" }
     } }
     BIND (FLOOR(?ra_raw/15) AS ?ra_hrs)
@@ -28,7 +30,8 @@ SELECT ?line {
     BIND (ROUND(((ABS(?dec_raw) - ?dec_deg)*60 - ?dec_min)*60) AS ?dec_sec) 
     OPTIONAL {[] schema:about ?item; schema:isPartOf <https://ru.wikipedia.org/>; schema:name ?ru }
     BIND(CONCAT(" |-\n | ",IF(BOUND(?ru), CONCAT("[[", ?ru, IF(LCASE(?itemLabel) != LCASE(?ru), CONCAT("|", ?itemLabel), ""), "]]"), 
-                              CONCAT("{{нет статьи|", REPLACE(STR(?item), "http://www.wikidata.org/entity/", ""), "|", ?itemLabel, "|Звезда}}")), " || ", 
+                              CONCAT("{{нет статьи/red|", REPLACE(STR(?item), "http://www.wikidata.org/entity/", ""), "|", 
+                                     REPLACE(ENCODE_FOR_URI(?itemLabel), "%20", "+"), "|", ?itemLabel, "|Звезда}}")), " || ", 
                 IF(STRLEN(STR(?ra_hrs)) = 1, "0", ""), STR(?ra_hrs), "<sup>ч</sup>&nbsp;", 
                 IF(STRLEN(STR(?ra_min)) = 1, "0", ""), STR(?ra_min), "<sup>м</sup>&nbsp;", 
                 IF(STRLEN(STR(?ra_sec)) = 1, "0", ""), STR(?ra_sec), "<sup>с</sup> || ", 
