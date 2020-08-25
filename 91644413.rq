@@ -44,7 +44,9 @@ SELECT ?line WITH {
     } UNION {
       { SELECT DISTINCT ?item ?itemLabel {
         INCLUDE %C
-        wd:Q318 ^wdt:P279*/^wdt:P31[wdt:P59 ?constellation; ^wdt:P361+ ?item].
+        wd:Q318 ^wdt:P279*/^wdt:P31 ?galaxy.
+        MINUS { BIND( wd:Q321 AS ?galaxy ) }
+        ?galaxy wdt:P59 ?constellation; ^wdt:P361+ ?item.
         ?item wdt:P59 ?constellation; wikibase:sitelinks ?iw 
         MINUS { ?item wdt:P59 ?constellation; wdt:P31/wdt:P279* wd:Q3937 }
         VALUES ?types { wd:Q595871 wd:Q523 wd:Q101600 }
