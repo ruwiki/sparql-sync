@@ -20,46 +20,42 @@ SELECT (MAX(?parent) AS ?star) (MAX(?number) AS ?num) (MAX(?parentLabel) AS ?lab
       OPTIONAL { ?lum_statement ^p:P2060 ?host; wikibase:rank wikibase:NormalRank; prov:wasDerivedFrom/pr:P248 ?source }
       BIND(REPLACE(STR(ROUND(1000*?lum_amount)/1000), "\\.", ",") AS ?lum)
     } UNION {
-      ?host wdt:P59/^pq:P59/^p:P360 wd:{0}; p:P398[ps:P398 ?exo; pq:P1545 []; wikibase:rank wikibase:NormalRank]
-      OPTIONAL { ?per_statement ^p:P2146 ?exo; wikibase:rank wikibase:NormalRank; psv:P2146/wikibase:quantityAmount ?per_amount }
-      OPTIONAL { ?per_statement ^p:P2146 ?exo; wikibase:rank wikibase:NormalRank; psv:P2146/wikibase:quantityUpperBound ?per_upper }
-      OPTIONAL { ?per_statement ^p:P2146 ?exo; wikibase:rank wikibase:NormalRank; psv:P2146/wikibase:quantityUnit ?per_unit }
-      OPTIONAL { ?per_statement ^p:P2146 ?exo; wikibase:rank wikibase:NormalRank; prov:wasDerivedFrom/pr:P248 ?source }
+      ?host wdt:P59/^pq:P59/^p:P360 wd:{0}; p:P398[ps:P398 ?exo; pq:P1545 []; wikibase:rank wikibase:NormalRank].
+      ?per_statement ^p:P2146 ?exo; wikibase:rank wikibase:NormalRank; psv:P2146[wikibase:quantityAmount ?per_amount; wikibase:quantityUnit ?per_unit]
       BIND(IF(?per_unit = wd:Q573, 100, IF(?per_unit = wd:Q577, 36525, "NaN"^^xsd:float)) AS ?per_mult)
-      BIND(IF(BOUND(?per_upper), ROUND(?per_mult*(?per_upper - ?per_amount))/100, 0) AS ?per_error)
-      BIND(REPLACE(IF(?per_error > 0, CONCAT(STR(ROUND(?per_mult * ?per_amount)/100), " ± ", STR(?per_error)), STR(ROUND(?per_mult * ?per_amount)/100)), "\\.", ",") AS ?per)
-    } UNION {
-      ?host wdt:P59/^pq:P59/^p:P360 wd:{0}; p:P398[ps:P398 ?exo; pq:P1545 []; wikibase:rank wikibase:NormalRank]
-      OPTIONAL { ?semi_statement ^p:P2233 ?exo; wikibase:rank wikibase:NormalRank; psv:P2233/wikibase:quantityAmount ?semi_amount }
-      OPTIONAL { ?semi_statement ^p:P2233 ?exo; wikibase:rank wikibase:NormalRank; psv:P2233/wikibase:quantityUpperBound ?semi_upper }
-      OPTIONAL { ?semi_statement ^p:P2233 ?exo; wikibase:rank wikibase:NormalRank; psv:P2233/wikibase:quantityUnit ?semi_unit }
-      OPTIONAL { ?semi_statement ^p:P2233 ?exo; wikibase:rank wikibase:NormalRank; prov:wasDerivedFrom/pr:P248 ?source }
-      BIND(IF(?semi_unit = wd:Q1811, 100, "NaN"^^xsd:float) AS ?semi_mult)
-      BIND(IF(BOUND(?semi_upper), ROUND(?semi_mult*(?semi_upper - ?semi_amount))/100, 0) AS ?semi_error)
-      BIND(REPLACE(IF(?semi_error > 0, CONCAT(STR(ROUND(?semi_mult * ?semi_amount)/100), " ± ", STR(?semi_error)), STR(ROUND(?semi_mult * ?semi_amount)/100)), "\\.", ",") AS ?semi)
-    } UNION {
-      ?host wdt:P59/^pq:P59/^p:P360 wd:{0}; p:P398[ps:P398 ?exo; pq:P1545 []; wikibase:rank wikibase:NormalRank]
-      OPTIONAL { ?ecc_statement ^p:P1096 ?exo; wikibase:rank wikibase:NormalRank; psv:P1096/wikibase:quantityAmount ?ecc_amount }
-      OPTIONAL { ?ecc_statement ^p:P1096 ?exo; wikibase:rank wikibase:NormalRank; prov:wasDerivedFrom/pr:P248 ?source }
-      BIND(REPLACE(STR(ROUND(100*?ecc_amount)/100), "\\.", ",") AS ?ecc)    
-    } UNION {
-      ?host wdt:P59/^pq:P59/^p:P360 wd:{0}; p:P398[ps:P398 ?exo; pq:P1545 []; wikibase:rank wikibase:NormalRank]
-      OPTIONAL { ?msini_statement ^p:P2051 ?exo; wikibase:rank wikibase:NormalRank; psv:P2051/wikibase:quantityAmount ?msini_amount }
-      OPTIONAL { ?msini_statement ^p:P2051 ?exo; wikibase:rank wikibase:NormalRank; psv:P2051/wikibase:quantityUpperBound ?msini_upper }
-      OPTIONAL { ?msini_statement ^p:P2051 ?exo; wikibase:rank wikibase:NormalRank; psv:P2051/wikibase:quantityUnit ?msini_unit }
-      OPTIONAL { ?msini_statement ^p:P2051 ?exo; wikibase:rank wikibase:NormalRank; prov:wasDerivedFrom/pr:P248 ?source }
-      BIND(IF(?msini_unit = wd:Q651336, 1000, IF(?msini_unit = wd:Q681996, 3.1780, "NaN"^^xsd:float)) AS ?msini_mult)
-      BIND(IF(BOUND(?msini_upper), ROUND(?msini_mult*(?msini_upper - ?msini_amount))/1000, 0) AS ?msini_error)
-      BIND(REPLACE(IF(?msini_error > 0, CONCAT(STR(ROUND(?msini_mult * ?msini_amount)/1000), " ± ", STR(?msini_error)), STR(ROUND(?msini_mult * ?msini_amount)/1000)), "\\.", ",") AS ?msini)
+      OPTIONAL { ?per_statement psv:P2146/wikibase:quantityUpperBound ?per_upper }
+      BIND(IF(!BOUND(?per_upper), 0, ROUND((?per_upper - ?per_amount) * ?per_mult)/100) AS ?per_error)
+      BIND(REPLACE(CONCAT(STR(ROUND(?per_amount * ?per_mult)/100), IF(?per_error = 0, "", CONCAT(" ± ", STR(?per_error)))), "\\.", ",") AS ?per)
+      OPTIONAL { ?per_statement prov:wasDerivedFrom/pr:P248 ?source }
     } UNION {
       ?host wdt:P59/^pq:P59/^p:P360 wd:{0}; p:P398[ps:P398 ?exo; pq:P1545 []; wikibase:rank wikibase:NormalRank].
-      OPTIONAL { ?m_statement ^p:P2067 ?exo; wikibase:rank wikibase:NormalRank; psv:P2067/wikibase:quantityAmount ?m_amount }
-      OPTIONAL { ?m_statement ^p:P2067 ?exo; wikibase:rank wikibase:NormalRank; psv:P2067/wikibase:quantityUpperBound ?m_upper }
-      OPTIONAL { ?m_statement ^p:P2067 ?exo; wikibase:rank wikibase:NormalRank; psv:P2067/wikibase:quantityUnit ?m_unit }
-      OPTIONAL { ?m_statement ^p:P2067 ?exo; wikibase:rank wikibase:NormalRank; prov:wasDerivedFrom/pr:P248 ?source }
+      ?semi_statement ^p:P2233 ?exo; wikibase:rank wikibase:NormalRank; psv:P2233[wikibase:quantityAmount ?semi_amount; wikibase:quantityUnit ?semi_unit]
+      BIND(IF(?semi_unit = wd:Q1811, 100, "NaN"^^xsd:float) AS ?semi_mult)
+      OPTIONAL { ?semi_statement psv:P2233/wikibase:quantityUpperBound ?semi_upper }
+      BIND(IF(!BOUND(?semi_upper), 0, ROUND((?semi_upper - ?semi_amount) * ?semi_mult)/100) AS ?semi_error)
+      BIND(REPLACE(CONCAT(STR(ROUND(?semi_amount * ?semi_mult)/100), IF(?semi_error = 0, "", CONCAT(" ± ", STR(?semi_error)))), "\\.", ",") AS ?semi)
+      OPTIONAL { ?semi_statement prov:wasDerivedFrom/pr:P248 ?source }
+    } UNION {
+      ?host wdt:P59/^pq:P59/^p:P360 wd:{0}; p:P398[ps:P398 ?exo; pq:P1545 []; wikibase:rank wikibase:NormalRank].
+      ?ecc_statement ^p:P1096 ?exo; wikibase:rank wikibase:NormalRank; psv:P1096/wikibase:quantityAmount ?ecc_amount
+      OPTIONAL { ?ecc_statement prov:wasDerivedFrom/pr:P248 ?source }
+      BIND(REPLACE(STR(ROUND(100*?ecc_amount)/100), "\\.", ",") AS ?ecc)    
+    } UNION {
+      ?host wdt:P59/^pq:P59/^p:P360 wd:{0}; p:P398[ps:P398 ?exo; pq:P1545 []; wikibase:rank wikibase:NormalRank].
+      ?msini_statement ^p:P2051 ?exo; wikibase:rank wikibase:NormalRank; psv:P2051[wikibase:quantityAmount ?msini_amount; wikibase:quantityUnit ?msini_unit]
+      BIND(IF(?msini_unit = wd:Q651336, 1000, IF(?msini_unit = wd:Q681996, 3.1780, "NaN"^^xsd:float)) AS ?msini_mult)
+      OPTIONAL { ?msini_statement psv:P2051/wikibase:quantityUpperBound ?msini_upper }
+      BIND(IF(!BOUND(?msini_upper), 0, ROUND((?msini_upper - ?msini_amount) * ?msini_mult)/1000) AS ?msini_error)
+      BIND(REPLACE(CONCAT(STR(ROUND(?msini_amount * ?msini_mult)/1000), IF(?msini_error = 0, "", CONCAT(" ± ", STR(?msini_error)))), "\\.", ",") AS ?msini)
+      OPTIONAL { ?msini_statement prov:wasDerivedFrom/pr:P248 ?source }
+    } UNION {
+      ?host wdt:P59/^pq:P59/^p:P360 wd:{0}; p:P398[ps:P398 ?exo; pq:P1545 []; wikibase:rank wikibase:NormalRank].
+      ?m_statement ^p:P2067 ?exo; wikibase:rank wikibase:NormalRank; psv:P2067[wikibase:quantityAmount ?m_amount; wikibase:quantityUnit ?m_unit]
       BIND(IF(?m_unit = wd:Q651336, 1000, IF(?m_unit = wd:Q681996, 3.1780, "NaN"^^xsd:float)) AS ?m_mult)
-      BIND(IF(BOUND(?m_upper), ROUND(?m_mult*(?m_upper - ?m_amount))/1000, 0) AS ?m_error)
-      BIND(REPLACE(IF(?m_error > 0, CONCAT(STR(ROUND(?m_mult * ?m_amount)/1000), " ± ", STR(?m_error)), STR(ROUND(?m_mult * ?m_amount)/1000)), "\\.", ",") AS ?m)
+      OPTIONAL { ?m_statement psv:P2067/wikibase:quantityUpperBound ?m_upper }
+      BIND(IF(!BOUND(?m_upper), 0, ROUND((?m_upper - ?m_amount) * ?m_mult)/1000) AS ?m_error)
+      BIND(REPLACE(CONCAT(STR(ROUND(?m_amount * ?m_mult)/1000), IF(?m_error = 0, "", CONCAT(" ± ", STR(?m_error)))), "\\.", ",") AS ?m)
+      OPTIONAL { ?m_statement prov:wasDerivedFrom/pr:P248 ?source }
     }
     OPTIONAL { ?exo wdt:P5653 ?exoplanet_eu }
     BIND(REPLACE(REPLACE(REPLACE(STR(?source), "http://www.wikidata.org/entity/", ""), "P", "Q"), "(Q1385430|Q51905050)", "") AS ?sss)
