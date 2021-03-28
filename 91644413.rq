@@ -19,6 +19,15 @@ SELECT ?line WITH {
     } UNION {
       { SELECT DISTINCT * { ?constellation ^wdt:P1423 wd:{0}; wdt:P1813 ?short } }
       ?item wdt:P59 ?constellation; p:P528[pq:P972 wd:Q222662; wikibase:rank wikibase:NormalRank; ps:P528 ?code]; wikibase:sitelinks ?iw
+      FILTER NOT EXISTS { [] p:P527[ps:P527 ?item; pq:P1545 []] }
+      FILTER (?item NOT IN (wd:Q43933, wd:Q841138, wd:Q872204, wd:Q913140, wd:Q1049146, wd:Q554280, wd:Q1043747))
+      FILTER NOT EXISTS { ?item wdt:P31 wd:Q3937 }
+      BIND(REPLACE(?code, CONCAT(' ', STR(?short)), '') AS ?label)
+      FILTER(REGEX(?label, '[A-Z].*') && (?iw > 0))
+      BIND(REPLACE(CONCAT(IF(REGEX(?label, '^[R-Z]+$'), 'CC', 'CD'), STR(STRLEN(?label)), ?label), '[R-Z]?\\s', '֍') AS ?sort)
+    } UNION {
+      { SELECT DISTINCT * { ?constellation ^wdt:P1423 wd:{0}; wdt:P1813 ?short } }
+      ?item wdt:P59 ?constellation; p:P527[pq:P1545 []; ps:P527[p:P528[pq:P972 wd:Q222662; wikibase:rank wikibase:NormalRank; ps:P528 ?code]; wikibase:sitelinks ?iw]]
       FILTER (?item NOT IN (wd:Q43933, wd:Q841138, wd:Q872204, wd:Q913140, wd:Q1049146, wd:Q554280, wd:Q1043747))
       FILTER NOT EXISTS { ?item wdt:P31 wd:Q3937 }
       BIND(REPLACE(?code, CONCAT(' ', STR(?short)), '') AS ?label)
