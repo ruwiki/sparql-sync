@@ -19,7 +19,14 @@ SELECT ?line WITH {
     } UNION {
       { SELECT DISTINCT * { ?constellation ^wdt:P1423 wd:{0}; wdt:P1813 ?short } }
       ?item wdt:P59 ?constellation; p:P528[pq:P972 wd:Q111116; wikibase:rank wikibase:NormalRank; ps:P528 ?code].
+      MINUS { [] wdt:P59 ?constellation; p:P527[ps:P527 ?item; pq:P1545 []] }
       FILTER (?item NOT IN (wd:Q2469, wd:Q14031))
+      BIND(REPLACE(?code, CONCAT(' ', STR(?short)), '') AS ?label)
+      BIND(CONCAT('BB', IF(CONTAINS(?label,' '), '֍', ''), UCASE(STRAFTER(?label,' ')), 
+                  SUBSTR(CONCAT('00', STRBEFORE(CONCAT(?label, ' '),' ')), STRLEN(STRBEFORE(CONCAT(?label, ' '),' ')))) AS ?sort)
+    } UNION {
+      { SELECT DISTINCT * { ?constellation ^wdt:P1423 wd:{0}; wdt:P1813 ?short } }
+      ?item wdt:P59 ?constellation; p:P527[pq:P1545 []; ps:P527[p:P528[pq:P972 wd:Q111116; wikibase:rank wikibase:NormalRank; ps:P528 ?code]]]
       BIND(REPLACE(?code, CONCAT(' ', STR(?short)), '') AS ?label)
       BIND(CONCAT('BB', IF(CONTAINS(?label,' '), '֍', ''), UCASE(STRAFTER(?label,' ')), 
                   SUBSTR(CONCAT('00', STRBEFORE(CONCAT(?label, ' '),' ')), STRLEN(STRBEFORE(CONCAT(?label, ' '),' ')))) AS ?sort)
