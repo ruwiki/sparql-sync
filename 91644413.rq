@@ -3,9 +3,16 @@ SELECT ?line WITH {
   SELECT ?item ?label ?sortkey {
     {
       { SELECT DISTINCT * { ?constellation ^wdt:P1423 wd:{0}; wdt:P1813 ?short } }
-      ?item wdt:P59 ?constellation; p:P528[pq:P972 wd:Q105616; wikibase:rank wikibase:NormalRank; ps:P528 ?code].
+      ?item wdt:P59 ?constellation; p:P528[pq:P972 wd:Q105616; wikibase:rank wikibase:NormalRank; ps:P528 ?code]
+      MINUS { [] wdt:P59 ?constellation; p:P527[ps:P527 ?item; pq:P1545 []] }
       MINUS { ?item wdt:P31 wd:Q43001876 }
       MINUS { ?item wdt:P31 wd:Q11276; wdt:P59 ?constellation }
+      BIND (REPLACE(?code, CONCAT(' ', STR(?short)), '') AS ?label)
+      BIND (CONCAT('A', REPLACE(IF(REGEX(?label, '^[A-Za-z]'), CONCAT('ωω',?label), 
+                                   IF(REGEX(?label, '\\s[A-Za-z][A-Za-z][A-Za-z]'), CONCAT('ω֍',?label), ?label)),'¹','1')) AS ?sort)
+    } UNION {
+      { SELECT DISTINCT * { ?constellation ^wdt:P1423 wd:{0}; wdt:P1813 ?short } }
+      ?item wdt:P59 ?constellation; p:P527[pq:P1545 []; ps:P527[p:P528[pq:P972 wd:Q105616; wikibase:rank wikibase:NormalRank; ps:P528 ?code]]]
       BIND (REPLACE(?code, CONCAT(' ', STR(?short)), '') AS ?label)
       BIND (CONCAT('A', REPLACE(IF(REGEX(?label, '^[A-Za-z]'), CONCAT('ωω',?label), 
                                    IF(REGEX(?label, '\\s[A-Za-z][A-Za-z][A-Za-z]'), CONCAT('ω֍',?label), ?label)),'¹','1')) AS ?sort)
