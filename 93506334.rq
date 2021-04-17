@@ -98,9 +98,10 @@ SELECT (MAX(?parent) AS ?star) (MAX(?number) AS ?num) (MAX(?parentLabel) AS ?lab
     }
   } UNION {
     INCLUDE %Q
+    BIND(CONCAT(UCASE(SUBSTR(?label, 1, 1)), SUBSTR(?label, 2)) AS ?article)
     BIND(CONCAT("B", IF(BOUND(?ly), SUBSTR(CONCAT("00000", STR(?ly)), STRLEN(STR(?ly))), CONCAT("99999999", ?label)), ?label, ?num) AS ?sortkey)
     BIND(CONCAT(" |-\n | ",IF(BOUND(?ru), CONCAT("[[", ?ru, IF(LCASE(?label) != LCASE(?ru), CONCAT("|", ?label), ""), "]]"), 
-                        CONCAT("{{нет статьи|", REPLACE(STR(?star), "http://www.wikidata.org/entity/", ""), "|", ?label, "|Звезда}}")), " || ", 
+                        CONCAT("{{нет статьи|", REPLACE(STR(?star), "http://www.wikidata.org/entity/", ""), "|", ?article, "|Звезда}}")), " || ", 
                 ?num, " || ", IF(BOUND(?ly), STR(?ly), ""), " || ", IF(BOUND(?l), ?l, ""), " || ", IF(BOUND(?s), ?s, ""), " || ", 
                 IF(BOUND(?e), ?e, ""), " || ", IF(BOUND(?p), ?p, ""), " || ", IF(BOUND(?m), ?m, ""), " || ", 
                 IF(BOUND(?eu), CONCAT("<sup>[http://exoplanet.eu/catalog/", ?eu, "/ EPE]</sup>"), ""), 
