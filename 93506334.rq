@@ -1,7 +1,7 @@
 SELECT ?line WITH {
 SELECT (MAX(?parent) AS ?star) (MAX(?number) AS ?num) (MAX(?parentLabel) AS ?label) (MAX(?dist) AS ?ly) (MAX(?lum) AS ?l) (MAX(?mass) AS ?m) (MAX(?ru_wiki) AS ?ru) 
        (MAX(?code) AS ?dr2) (MAX(?per) AS ?p) (MAX(?semi) AS ?s) (MAX(?ecc) AS ?e) (MAX(?exoplanet_eu) AS ?eu) (GROUP_CONCAT(DISTINCT ?sss; SEPARATOR=" ") AS ?src) {
-  SELECT ?parent ?parentLabel ?host ?ru_wiki ?exo ?number ?dist ?lum ?per ?semi ?ecc ?mass ?sss ?exoplanet_eu ?code {
+  SELECT DISTINCT ?parent ?parentLabel ?host ?ru_wiki ?exo ?number ?dist ?lum ?per ?semi ?ecc ?mass ?sss ?exoplanet_eu ?code {
     {
       ?host wdt:P59/^pq:P59/^p:P360 wd:{0}; p:P398[ps:P398 ?exo; pq:P1545 ?designation; wikibase:rank wikibase:NormalRank]; wdt:P361? ?parent
       OPTIONAL {?parent p:P527[ps:P527 ?host; pq:P1545 ?component]}
