@@ -58,7 +58,7 @@ SELECT (MAX(?parent) AS ?star) (MAX(?number) AS ?num) (MAX(?parentLabel) AS ?lab
       OPTIONAL { ?m_statement prov:wasDerivedFrom/pr:P248 ?source }
     }
     OPTIONAL { ?exo wdt:P5653 ?exoplanet_eu }
-    BIND(REPLACE(REPLACE(REPLACE(STR(?source), "http://www.wikidata.org/entity/", ""), "P", "Q"), "(Q1385430|Q51905050)", "") AS ?sss)
+    BIND(REPLACE(REPLACE(REPLACE(STR(?source), "http://www.wikidata.org/entity/", ""), "P", "Q"), "(Q1385430|Q51905050|Q5420639)", "") AS ?sss)
     BIND(IF(BOUND(?m), ?m, CONCAT("{{comment|>|масса экзопланеты, умноженная на угол наклонения}}", ?msini)) AS ?mass)
     SERVICE wikibase:label { bd:serviceParam wikibase:language "ru,en" }
   } ORDER BY ?host ?exo ?sss
