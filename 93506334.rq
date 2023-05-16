@@ -1,70 +1,54 @@
-SELECT ?line WITH {
-SELECT (MAX(?parent) AS ?star) (MAX(?number) AS ?num) (MAX(?parentLabel) AS ?label) (MAX(?dist) AS ?ly) (MAX(?lum) AS ?l) (MAX(?mass) AS ?m) (MAX(?ru_wiki) AS ?ru) 
-       (MAX(?code) AS ?dr2) (MAX(?per) AS ?p) (MAX(?semi) AS ?s) (MAX(?ecc) AS ?e) (MAX(?exoplanet_eu) AS ?eu) (GROUP_CONCAT(DISTINCT ?sss; SEPARATOR=" ") AS ?src) {
-  SELECT DISTINCT ?parent ?parentLabel ?host ?ru_wiki ?exo ?number ?dist ?lum ?per ?semi ?ecc ?mass ?sss ?exoplanet_eu ?code {
-    {
-      ?host wdt:P59/^pq:P59/^p:P360 wd:{0}; p:P398[ps:P398 ?exo; pq:P1545 ?designation; wikibase:rank wikibase:NormalRank]; wdt:P361? ?parent
-      OPTIONAL {?parent p:P527[ps:P527 ?host; pq:P1545 ?component]}
-      BIND(IF(BOUND(?component), CONCAT(?component, ?designation), ?designation) AS ?number)
-      VALUES ?types { wd:Q523 wd:Q595871 wd:Q101600 }
-      ?parent wdt:P31/wdt:P279* ?types
-      OPTIONAL { [] schema:about ?parent; schema:isPartOf <https://ru.wikipedia.org/>; schema:name ?ru_wiki }
-      FILTER NOT EXISTS { ?parent ^ps:P527/pq:P1545 [] }
-      OPTIONAL { ?dist_statement ^p:P2583 ?host; wikibase:rank wikibase:NormalRank; psv:P2583/wikibase:quantityAmount ?dist_amount }
-      OPTIONAL { ?dist_statement ^p:P2583 ?host; wikibase:rank wikibase:NormalRank; prov:wasDerivedFrom/pr:P248 ?source }  
-      BIND (ROUND(?dist_amount*3.26156) AS ?dist)          
-    } UNION {
-      ?host wdt:P59/^pq:P59/^p:P360 wd:{0}; p:P398[ps:P398 ?exo; pq:P1545 []; wikibase:rank wikibase:NormalRank]
-      OPTIONAL { ?host p:P528[ps:P528 ?code; pq:P972 wd:Q51905050] }
-      OPTIONAL { ?lum_statement ^p:P2060 ?host; wikibase:rank wikibase:NormalRank; psv:P2060/wikibase:quantityAmount ?lum_amount }
-      OPTIONAL { ?lum_statement ^p:P2060 ?host; wikibase:rank wikibase:NormalRank; prov:wasDerivedFrom/pr:P248 ?source }
-      BIND(REPLACE(STR(ROUND(1000*?lum_amount)/1000), "\\.", ",") AS ?lum)
-    } UNION {
-      ?host wdt:P59/^pq:P59/^p:P360 wd:{0}; p:P398[ps:P398 ?exo; pq:P1545 []; wikibase:rank wikibase:NormalRank].
-      ?per_statement ^p:P2146 ?exo; wikibase:rank wikibase:NormalRank; psv:P2146[wikibase:quantityAmount ?per_amount; wikibase:quantityUnit ?per_unit]
-      BIND(IF(?per_unit = wd:Q573, 100, IF(?per_unit = wd:Q577, 36525, "NaN"^^xsd:float)) AS ?per_mult)
-      OPTIONAL { ?per_statement psv:P2146/wikibase:quantityUpperBound ?per_upper }
-      BIND(IF(!BOUND(?per_upper), 0, ROUND((?per_upper - ?per_amount) * ?per_mult)/100) AS ?per_error)
-      BIND(REPLACE(CONCAT(STR(ROUND(?per_amount * ?per_mult)/100), IF(?per_error = 0, "", CONCAT(" ± ", STR(?per_error)))), "\\.", ",") AS ?per)
-      OPTIONAL { ?per_statement prov:wasDerivedFrom/pr:P248 ?source }
-    } UNION {
-      ?host wdt:P59/^pq:P59/^p:P360 wd:{0}; p:P398[ps:P398 ?exo; pq:P1545 []; wikibase:rank wikibase:NormalRank].
-      ?semi_statement ^p:P2233 ?exo; wikibase:rank wikibase:NormalRank; psv:P2233[wikibase:quantityAmount ?semi_amount; wikibase:quantityUnit ?semi_unit]
-      BIND(IF(?semi_unit = wd:Q1811, 100, "NaN"^^xsd:float) AS ?semi_mult)
-      OPTIONAL { ?semi_statement psv:P2233/wikibase:quantityUpperBound ?semi_upper }
-      BIND(IF(!BOUND(?semi_upper), 0, ROUND((?semi_upper - ?semi_amount) * ?semi_mult)/100) AS ?semi_error)
-      BIND(REPLACE(CONCAT(STR(ROUND(?semi_amount * ?semi_mult)/100), IF(?semi_error = 0, "", CONCAT(" ± ", STR(?semi_error)))), "\\.", ",") AS ?semi)
-      OPTIONAL { ?semi_statement prov:wasDerivedFrom/pr:P248 ?source }
-    } UNION {
-      ?host wdt:P59/^pq:P59/^p:P360 wd:{0}; p:P398[ps:P398 ?exo; pq:P1545 []; wikibase:rank wikibase:NormalRank].
-      ?ecc_statement ^p:P1096 ?exo; wikibase:rank wikibase:NormalRank; psv:P1096/wikibase:quantityAmount ?ecc_amount
-      OPTIONAL { ?ecc_statement prov:wasDerivedFrom/pr:P248 ?source }
-      BIND(REPLACE(STR(ROUND(100*?ecc_amount)/100), "\\.", ",") AS ?ecc)    
-    } UNION {
-      ?host wdt:P59/^pq:P59/^p:P360 wd:{0}; p:P398[ps:P398 ?exo; pq:P1545 []; wikibase:rank wikibase:NormalRank].
-      ?msini_statement ^p:P2051 ?exo; wikibase:rank wikibase:NormalRank; psv:P2051[wikibase:quantityAmount ?msini_amount; wikibase:quantityUnit ?msini_unit]
-      BIND(IF(?msini_unit = wd:Q651336, 1000, IF(?msini_unit = wd:Q681996, 3.1780, "NaN"^^xsd:float)) AS ?msini_mult)
-      OPTIONAL { ?msini_statement psv:P2051/wikibase:quantityUpperBound ?msini_upper }
-      BIND(IF(!BOUND(?msini_upper), 0, ROUND((?msini_upper - ?msini_amount) * ?msini_mult)/1000) AS ?msini_error)
-      BIND(REPLACE(CONCAT(STR(ROUND(?msini_amount * ?msini_mult)/1000), IF(?msini_error = 0, "", CONCAT(" ± ", STR(?msini_error)))), "\\.", ",") AS ?msini)
-      OPTIONAL { ?msini_statement prov:wasDerivedFrom/pr:P248 ?source }
-    } UNION {
-      ?host wdt:P59/^pq:P59/^p:P360 wd:{0}; p:P398[ps:P398 ?exo; pq:P1545 []; wikibase:rank wikibase:NormalRank].
-      ?m_statement ^p:P2067 ?exo; wikibase:rank wikibase:NormalRank; psv:P2067[wikibase:quantityAmount ?m_amount; wikibase:quantityUnit ?m_unit]
-      BIND(IF(?m_unit = wd:Q651336, 1000, IF(?m_unit = wd:Q681996, 3.1780, "NaN"^^xsd:float)) AS ?m_mult)
-      OPTIONAL { ?m_statement psv:P2067/wikibase:quantityUpperBound ?m_upper }
-      BIND(IF(!BOUND(?m_upper), 0, ROUND((?m_upper - ?m_amount) * ?m_mult)/1000) AS ?m_error)
-      BIND(REPLACE(CONCAT(STR(ROUND(?m_amount * ?m_mult)/1000), IF(?m_error = 0, "", CONCAT(" ± ", STR(?m_error)))), "\\.", ",") AS ?m)
-      OPTIONAL { ?m_statement prov:wasDerivedFrom/pr:P248 ?source }
-    }
-    OPTIONAL { ?exo wdt:P5653 ?exoplanet_eu }
-    BIND(REPLACE(REPLACE(REPLACE(STR(?source), "http://www.wikidata.org/entity/", ""), "P", "Q"), "(Q1385430|Q51905050|Q5420639)", "") AS ?sss)
-    BIND(IF(BOUND(?m), ?m, CONCAT("{{comment|>|масса экзопланеты, умноженная на угол наклонения}}", ?msini)) AS ?mass)
-    SERVICE wikibase:label { bd:serviceParam wikibase:language "ru,en" }
-  } ORDER BY ?host ?exo ?sss
-} GROUP BY ?host ?exo} AS %Q {
+SELECT ?line WITH { SELECT ?exo ?dist ?lum ?per ?semi ?ecc ?msini ?mass ?statement {
   {
-    { SELECT (COUNT(*) AS ?exo_num) (COUNT(DISTINCT ?star) AS ?star_num) { INCLUDE %Q } }
+    ?host wdt:P59/^pq:P59/^p:P360 wd:{0}; p:P398[ps:P398 ?exo; pq:P1545 []; wikibase:rank wikibase:NormalRank].
+    ?statement ^p:P2583 ?host; wikibase:rank wikibase:NormalRank; psv:P2583/wikibase:quantityAmount ?amount
+    BIND (ROUND(?amount*3.26156) AS ?dist)
+  } UNION {
+    ?host wdt:P59/^pq:P59/^p:P360 wd:{0}; p:P398[ps:P398 ?exo; pq:P1545 []; wikibase:rank wikibase:NormalRank].
+    ?statement ^p:P2060 ?host; wikibase:rank wikibase:NormalRank; psv:P2060/wikibase:quantityAmount ?amount
+    BIND(REPLACE(STR(ROUND(1000*?amount)/1000), "\\.", ",") AS ?lum)
+  } UNION {
+    ?host wdt:P59/^pq:P59/^p:P360 wd:{0}; p:P398[ps:P398 ?exo; pq:P1545 []; wikibase:rank wikibase:NormalRank].
+    ?statement ^p:P2146 ?exo; a wikibase:BestRank; psv:P2146[wikibase:quantityAmount ?amount; wikibase:quantityUnit ?unit]
+    BIND(IF(?unit = wd:Q573, 100, IF(?unit = wd:Q577, 36525, "NaN"^^xsd:float)) AS ?mult)
+    OPTIONAL { ?statement psv:P2146/wikibase:quantityUpperBound ?upper }
+    BIND(IF(!BOUND(?upper), 0, ROUND((?upper - ?amount) * ?mult)/100) AS ?error)
+    BIND(REPLACE(CONCAT(STR(ROUND(?amount * ?mult)/100), IF(?error = 0, "", CONCAT(" ± ", STR(?error)))), "\\.", ",") AS ?per)
+  } UNION {
+    ?host wdt:P59/^pq:P59/^p:P360 wd:{0}; p:P398[ps:P398 ?exo; pq:P1545 []; wikibase:rank wikibase:NormalRank].
+    ?statement ^p:P2233 ?exo; a wikibase:BestRank; psv:P2233[wikibase:quantityAmount ?amount; wikibase:quantityUnit ?unit]
+    BIND(IF(?unit = wd:Q1811, 100, "NaN"^^xsd:float) AS ?mult)
+    OPTIONAL { ?statement psv:P2233/wikibase:quantityUpperBound ?upper }
+    BIND(IF(!BOUND(?upper), 0, ROUND((?upper - ?amount) * ?mult)/100) AS ?error)
+    BIND(REPLACE(CONCAT(STR(ROUND(?amount * ?mult)/100), IF(?error = 0, "", CONCAT(" ± ", STR(?error)))), "\\.", ",") AS ?semi)
+  } UNION {
+    ?host wdt:P59/^pq:P59/^p:P360 wd:{0}; p:P398[ps:P398 ?exo; pq:P1545 []; wikibase:rank wikibase:NormalRank].
+    ?statement ^p:P1096 ?exo; a wikibase:BestRank; psv:P1096/wikibase:quantityAmount ?amount
+    BIND(REPLACE(STR(ROUND(100*?amount)/100), "\\.", ",") AS ?ecc)
+  } UNION {
+    ?host wdt:P59/^pq:P59/^p:P360 wd:{0}; p:P398[ps:P398 ?exo; pq:P1545 []; wikibase:rank wikibase:NormalRank].
+    ?statement ^p:P2051 ?exo; a wikibase:BestRank; psv:P2051[wikibase:quantityAmount ?amount; wikibase:quantityUnit ?unit]
+    OPTIONAL { ?statement psv:P2051/wikibase:quantityUpperBound ?upper }
+    BIND(IF(?unit = wd:Q651336, 1000, IF(?unit = wd:Q681996, 3.1780, "NaN"^^xsd:float)) AS ?mult)
+    BIND(IF(!BOUND(?upper), 0, ROUND((?upper - ?amount) * ?mult)/1000) AS ?error)
+    BIND(REPLACE(CONCAT(STR(ROUND(?amount * ?mult)/1000), IF(?error = 0, "", CONCAT(" ± ", STR(?error)))), "\\.", ",") AS ?msini)
+  } UNION {
+    ?host wdt:P59/^pq:P59/^p:P360 wd:{0}; p:P398[ps:P398 ?exo; pq:P1545 []; wikibase:rank wikibase:NormalRank].
+    ?statement ^p:P2067 ?exo; a wikibase:BestRank; psv:P2067[wikibase:quantityAmount ?amount; wikibase:quantityUnit ?unit]
+    OPTIONAL { ?statement psv:P2067/wikibase:quantityUpperBound ?upper }
+    BIND(IF(?unit = wd:Q651336, 1000, IF(?unit = wd:Q681996, 3.1780, "NaN"^^xsd:float)) AS ?mult)
+    BIND(IF(!BOUND(?upper), 0, ROUND((?upper - ?amount) * ?mult)/1000) AS ?error)
+    BIND(REPLACE(CONCAT(STR(ROUND(?amount * ?mult)/1000), IF(?error = 0, "", CONCAT(" ± ", STR(?error)))), "\\.", ",") AS ?mass)
+  }
+}} AS %S {
+  {
+    { SELECT (COUNT (DISTINCT ?exo) AS ?exo_num) (COUNT(DISTINCT ?parent) AS ?star_num) { 
+        ?host wdt:P59/^pq:P59/^p:P360 wd:{0}; p:P398[ps:P398 ?exo; pq:P1545 []; wikibase:rank wikibase:NormalRank]; wdt:P361? ?parent
+        OPTIONAL {?parent p:P527[ps:P527 ?host; pq:P1545 []]}
+        VALUES ?types { wd:Q523 wd:Q595871 wd:Q101600 }
+        ?parent wdt:P31/wdt:P279* ?types
+        FILTER NOT EXISTS { ?parent ^ps:P527/pq:P1545 [] }
+    } }
     wd:{0} p:P360/pq:P59/^schema:about[schema:name ?ru; schema:isPartOf <https://ru.wikipedia.org/>]
     BIND("A1" AS ?sortkey)
     BIND(?exo_num-ROUND(?exo_num/10-0.5)*10 AS ?digit)
@@ -98,16 +82,43 @@ SELECT (MAX(?parent) AS ?star) (MAX(?number) AS ?num) (MAX(?parentLabel) AS ?lab
       ("C8" "[[Категория:Википедия:Автоматически формируемые списки экзопланет по созвездиям]]")
     }
   } UNION {
-    INCLUDE %Q
-    BIND(CONCAT(UCASE(SUBSTR(?label, 1, 1)), SUBSTR(?label, 2)) AS ?article)
-    BIND(CONCAT("B", IF(BOUND(?ly), SUBSTR(CONCAT("00000", STR(?ly)), STRLEN(STR(?ly))), CONCAT("99999999", ?label)), ?label, ?num) AS ?sortkey)
-    BIND(CONCAT(" |-\n | ",IF(BOUND(?ru), CONCAT("[[", ?ru, IF(LCASE(?label) != LCASE(?ru), CONCAT("|", ?label), ""), "]]"), 
-                        CONCAT("{{нет статьи|", REPLACE(STR(?star), "http://www.wikidata.org/entity/", ""), "|", ?article, "|Звезда}}")), " || ", 
-                ?num, " || ", IF(BOUND(?ly), STR(?ly), ""), " || ", IF(BOUND(?l), ?l, ""), " || ", IF(BOUND(?s), ?s, ""), " || ", 
+      {
+      SELECT ?parent ?ru ?parentLabel ?number ?host ?exo
+        (MAX(?dist) AS ?ly) (MAX(?lum) AS ?l) (MAX(?ms) AS ?m) (MAX(?per) AS ?p) (MAX(?semi) AS ?s) (MAX(?ecc) AS ?e) (MAX(?source) AS ?src) {
+        { INCLUDE %S } UNION {
+          SELECT ?exo (GROUP_CONCAT(DISTINCT ?ref; SEPARATOR="") AS ?source) {
+            { SELECT ?exo ?ref {
+              SELECT DISTINCT ?exo ?ref {
+              INCLUDE %S
+              ?statement prov:wasDerivedFrom/pr:P248 ?reference
+              FILTER (?reference NOT IN (wd:Q1385430, wd:Q51905050, wd:Q5420639))
+              BIND(REPLACE(STR(?reference), "http://www.wikidata.org/entity/(Q\\d+)", "{{source-ref|$1}}") AS ?ref)
+            }
+            } ORDER BY ?exo ?ref }
+          } GROUP BY ?exo
+        }
+        ?host p:P398[ps:P398 ?exo; pq:P1545 ?designation; wikibase:rank wikibase:NormalRank]; wdt:P361? ?parent
+        OPTIONAL {?parent p:P527[ps:P527 ?host; pq:P1545 ?component]}
+        BIND(IF(BOUND(?component), CONCAT(?component, ?designation), ?designation) AS ?number)
+        VALUES ?types { wd:Q523 wd:Q595871 wd:Q101600 }
+        FILTER EXISTS { ?parent wdt:P31/wdt:P279* ?types }
+        OPTIONAL { [] schema:about ?parent; schema:isPartOf <https://ru.wikipedia.org/>; schema:name ?ru }
+        FILTER NOT EXISTS { ?parent ^ps:P527/pq:P1545 [] }
+        BIND(IF(BOUND(?mass), ?mass, CONCAT("{{comment|>|масса экзопланеты, умноженная на угол наклонения}}", ?msini)) AS ?ms)
+        SERVICE wikibase:label { bd:serviceParam wikibase:language "ru,en" }
+      } GROUP BY ?parent ?ru ?host ?parentLabel ?number ?exo
+    }
+    OPTIONAL { ?exo wdt:P5653 ?eu }
+    OPTIONAL { ?host p:P528[ps:P528 ?dr2; pq:P972 wd:Q51905050] }
+    BIND(CONCAT(UCASE(SUBSTR(?parentLabel, 1, 1)), SUBSTR(?parentLabel, 2)) AS ?article)
+    BIND(CONCAT("B", IF(BOUND(?ly), SUBSTR(CONCAT("00000", STR(?ly)), STRLEN(STR(?ly))), CONCAT("99999999", ?parentLabel)), ?parentLabel, ?number) AS ?sortkey)
+    BIND(CONCAT(" |-\n | ",IF(BOUND(?ru), CONCAT("[[", ?ru, IF(LCASE(?parentLabel) != LCASE(?ru), CONCAT("|", ?parentLabel), ""), "]]"), 
+                        CONCAT("{{нет статьи|", REPLACE(STR(?parent), "http://www.wikidata.org/entity/", ""), "|", ?article, "|Звезда}}")), " || ", 
+                ?number, " || ", IF(BOUND(?ly), STR(?ly), ""), " || ", IF(BOUND(?l), ?l, ""), " || ", IF(BOUND(?s), ?s, ""), " || ", 
                 IF(BOUND(?e), ?e, ""), " || ", IF(BOUND(?p), ?p, ""), " || ", IF(BOUND(?m), ?m, ""), " || ", 
                 IF(BOUND(?eu), CONCAT("<sup>[http://exoplanet.eu/catalog/", REPLACE(?eu, " ", "%20"), "/ EPE]</sup>"), ""), 
                 IF(BOUND(?dr2), CONCAT("<sup>[http://vizier.u-strasbg.fr/viz-bin/VizieR-S?", ENCODE_FOR_URI(?dr2), " DR2]</sup>"), ""), 
-                REPLACE(REPLACE(?src, "(Q\\d+)", "{{source-ref|$1}}"), " ", "")
+                ?src
                ) AS ?line)
   } UNION {
     wd:{0} p:P360/pq:P59/^schema:about[schema:name ?ru; schema:isPartOf <https://ru.wikipedia.org/>]
