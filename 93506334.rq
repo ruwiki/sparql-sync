@@ -91,7 +91,7 @@ SELECT ?line WITH { SELECT ?exo ?dist ?lum ?per ?semi ?ecc ?msini ?mass ?stateme
               SELECT DISTINCT ?exo ?ref {
               INCLUDE %S
               ?statement prov:wasDerivedFrom/pr:P248 ?reference
-              FILTER (?reference NOT IN (wd:Q1385430, wd:Q51905050, wd:Q5420639))
+              FILTER (?reference NOT IN (wd:Q1385430, wd:Q51905050, wd:Q5420639, wd:Q654724, wd:Q98668919, wd:Q66061041))
               BIND(REPLACE(STR(?reference), "http://www.wikidata.org/entity/(Q\\d+)", "{{source-ref|$1}}") AS ?ref)
             }
             } ORDER BY ?exo ?ref }
