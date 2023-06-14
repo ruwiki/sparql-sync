@@ -1,8 +1,9 @@
 SELECT ?line WITH { SELECT ?exo ?dist ?lum ?per ?semi ?ecc ?msini ?mass ?statement {
   {
     ?host wdt:P59/^pq:P59/^p:P360 wd:{0}; p:P398[ps:P398 ?exo; pq:P1545 []; wikibase:rank wikibase:NormalRank].
-    ?statement ^p:P2583 ?host; wikibase:rank wikibase:NormalRank; psv:P2583/wikibase:quantityAmount ?amount
-    BIND (ROUND(?amount*3.26156) AS ?dist)
+    ?statement ^p:P2583 ?host; wikibase:rank wikibase:NormalRank; psv:P2583[wikibase:quantityAmount ?amount; wikibase:quantityUnit ?unit]
+    BIND(IF(?unit = wd:Q11929860, 3261.56, 3.26156) AS ?mult)
+    BIND(ROUND(?amount*?mult) AS ?dist)
   } UNION {
     ?host wdt:P59/^pq:P59/^p:P360 wd:{0}; p:P398[ps:P398 ?exo; pq:P1545 []; wikibase:rank wikibase:NormalRank].
     ?statement ^p:P2060 ?host; wikibase:rank wikibase:NormalRank; psv:P2060/wikibase:quantityAmount ?amount
