@@ -11,7 +11,7 @@ SELECT ?line WITH {
         BIND (REPLACE(?code, CONCAT(' ', STR(?short)), '') AS ?label)
         BIND (CONCAT('A', REPLACE(IF(REGEX(?label, '^[A-Za-z]'), CONCAT('ωω',?label),
           IF(REGEX(?label, '\\s[A-Za-z][A-Za-z][A-Za-z]'), CONCAT('ω֍',?label), ?label)),'¹','1')) AS ?sort)
-        SERVICE wikibase:label { bd:serviceParam wikibase:language 'ru' }
+        SERVICE wikibase:label { bd:serviceParam wikibase:language 'ru,mul,en' }
       }
     } UNION {
       SELECT ?item ?label ?itemLabel ?sort {
@@ -20,7 +20,7 @@ SELECT ?line WITH {
         BIND (REPLACE(?code, CONCAT(' ', STR(?short)), '') AS ?label)
         BIND (CONCAT('A', REPLACE(IF(REGEX(?label, '^[A-Za-z]'), CONCAT('ωω',?label),
           IF(REGEX(?label, '\\s[A-Za-z][A-Za-z][A-Za-z]'), CONCAT('ω֍',?label), ?label)),'¹','1')) AS ?sort)
-        SERVICE wikibase:label { bd:serviceParam wikibase:language 'ru' }
+        SERVICE wikibase:label { bd:serviceParam wikibase:language 'ru,mul,en' }
       }
     } UNION {
       SELECT ?item ?label ?itemLabel ?sort {
@@ -31,7 +31,7 @@ SELECT ?line WITH {
         BIND(REPLACE(?code, CONCAT(' ', STR(?short)), '') AS ?label)
         BIND(CONCAT('BB', IF(CONTAINS(?label,' '), '֍', ''), UCASE(STRAFTER(?label,' ')),
           SUBSTR(CONCAT('00', STRBEFORE(CONCAT(?label, ' '),' ')), STRLEN(STRBEFORE(CONCAT(?label, ' '),' ')))) AS ?sort)
-        SERVICE wikibase:label { bd:serviceParam wikibase:language 'ru' }
+        SERVICE wikibase:label { bd:serviceParam wikibase:language 'ru,mul,en' }
       }
     } UNION {
       SELECT ?item ?label ?itemLabel ?sort {
@@ -40,7 +40,7 @@ SELECT ?line WITH {
         BIND(REPLACE(?code, CONCAT(' ', STR(?short)), '') AS ?label)
         BIND(CONCAT('BB', IF(CONTAINS(?label,' '), '֍', ''), UCASE(STRAFTER(?label,' ')),
           SUBSTR(CONCAT('00', STRBEFORE(CONCAT(?label, ' '),' ')), STRLEN(STRBEFORE(CONCAT(?label, ' '),' ')))) AS ?sort)
-        SERVICE wikibase:label { bd:serviceParam wikibase:language 'ru' }
+        SERVICE wikibase:label { bd:serviceParam wikibase:language 'ru,mul,en' }
       }
     } UNION {
       SELECT ?item ?label ?itemLabel ?sort {
@@ -52,7 +52,7 @@ SELECT ?line WITH {
         BIND(REPLACE(?code, CONCAT(' ', STR(?short)), '') AS ?label)
         FILTER(REGEX(?label, '[A-Z].*') && (?iw > 0))
         BIND(REPLACE(CONCAT(IF(REGEX(?label, '^[R-Z]+$'), 'CC', 'CD'), STR(STRLEN(?label)), ?label), '[R-Z]?\\s', '֍') AS ?sort)
-        SERVICE wikibase:label { bd:serviceParam wikibase:language 'ru' }
+        SERVICE wikibase:label { bd:serviceParam wikibase:language 'ru,mul,en' }
       }
     } UNION {
       SELECT ?item ?label ?itemLabel ?sort {
@@ -61,14 +61,14 @@ SELECT ?line WITH {
         BIND(REPLACE(?code, CONCAT(' ', STR(?short)), '') AS ?label)
         FILTER(REGEX(?label, '[A-Z].*') && (?iw1 + ?iw2 > 0))
         BIND(REPLACE(CONCAT(IF(REGEX(?label, '^[R-Z]+$'), 'CC', 'CD'), STR(STRLEN(?label)), ?label), '[R-Z]?\\s', '֍') AS ?sort)
-        SERVICE wikibase:label { bd:serviceParam wikibase:language 'ru' }
+        SERVICE wikibase:label { bd:serviceParam wikibase:language 'ru,mul,en' }
       }
     } UNION {
       { SELECT DISTINCT ?item ?itemLabel {
         INCLUDE %C
         ?item wdt:P59 ?constellation; p:P398/pq:P1545 []
         FILTER NOT EXISTS { [] p:P527[ps:P527 ?item; pq:P1545 []] }
-        SERVICE wikibase:label { bd:serviceParam wikibase:language "ru,en" }
+        SERVICE wikibase:label { bd:serviceParam wikibase:language "ru,mul,en" }
       } }
       BIND(CONCAT(UCASE(SUBSTR(?itemLabel, 1, 1)), SUBSTR(?itemLabel, 2)) AS ?label)
       BIND('D' AS ?sort)
@@ -76,7 +76,7 @@ SELECT ?line WITH {
       { SELECT DISTINCT ?item ?itemLabel {
         INCLUDE %C
         ?item wdt:P59 ?constellation; p:P527[ps:P527/p:P398/pq:P1545 []; pq:P1545 []]
-        SERVICE wikibase:label { bd:serviceParam wikibase:language "ru,en" }
+        SERVICE wikibase:label { bd:serviceParam wikibase:language "ru,mul,en" }
       } }
       BIND(CONCAT(UCASE(SUBSTR(?itemLabel, 1, 1)), SUBSTR(?itemLabel, 2)) AS ?label)
       BIND('D' AS ?sort)
@@ -91,7 +91,7 @@ SELECT ?line WITH {
         VALUES ?types { wd:Q595871 wd:Q523 wd:Q101600 }
         FILTER EXISTS { ?item wdt:P31/wdt:P279* ?types }
         FILTER (?iw > 0)
-        SERVICE wikibase:label { bd:serviceParam wikibase:language "ru,en" }
+        SERVICE wikibase:label { bd:serviceParam wikibase:language "ru,mul,en" }
       } }
       BIND('E' AS ?sort)
       BIND(CONCAT(UCASE(SUBSTR(?itemLabel, 1, 1)), SUBSTR(?itemLabel, 2)) AS ?label)
@@ -159,7 +159,7 @@ SELECT ?line WITH {
     INCLUDE %Q
     OPTIONAL { [] schema:about ?item; schema:isPartOf <https://ru.wikipedia.org/>; schema:name ?ru }
     BIND(CONCAT(UCASE(SUBSTR(?itemLabel, 1, 1)), SUBSTR(?itemLabel, 2)) AS ?article)
-    BIND(IF(BOUND(?ru), CONCAT('[[', ?ru, IF(LCASE(?label) != LCASE(?ru), CONCAT('|', ?label), ''), ']]'),
+    BIND(IF(BOUND(?ru), CONCAT('[[', ?ru, IF(LCASE(STR(?label)) != LCASE(STR(?ru)), CONCAT('|', ?label), ''), ']]'),
                         CONCAT('{{нет статьи2|', ?article, '|', ?label, '|d|', REPLACE(STR(?item), 'http://www.wikidata.org/entity/', ''), '}}')) AS ?link)
     BIND(IF(CONTAINS(?sortkey, '֍'), CONCAT("* ''", ?link, "''"), CONCAT('* ', ?link)) AS ?line)
   } UNION {
